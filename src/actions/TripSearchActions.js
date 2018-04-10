@@ -3,7 +3,9 @@ import { Actions } from 'react-native-router-flux';
 import {
     PORT_FETCH_SUCCESS,
     DEPARTURE_PORT_SELECTED,
-    DESTINATION_PORT_SELECTED
+    DESTINATION_PORT_SELECTED,
+    DEPARTURE_DATE_SELECTED,
+    RETURN_DATE_SELECTED
 } from './types';
 
 export const portsFetch = (searchText) => {
@@ -32,3 +34,16 @@ export const selectDestination = (port) => {
         Actions.pop();
     };
 };
+
+export const selectDeapartureDate = (date) => {
+    return (dispatch) => {
+        dispatch({ type: DEPARTURE_DATE_SELECTED, payload: date });
+    };  
+};
+
+export const selectReturnDate = (date) => {
+    return (dispatch) => {
+        dispatch({ type: RETURN_DATE_SELECTED, payload: date });
+    };  
+};
+

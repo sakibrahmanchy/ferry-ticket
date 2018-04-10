@@ -10,6 +10,7 @@
     "axios": "^0.18.0",
     "eslint-config-rallycoding": "^3.2.0",
     "loadash": "^1.0.0",
+    "moment": "^2.22.0",
     "react": "16.3.0-alpha.1",
     "react-native": "0.54.2",
     "react-native-app-intro": "https://github.com/merryjs/react-native-app-intro",

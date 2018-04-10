@@ -9,3 +9,4 @@ export * from './SelectButton';
 export * from './LocationSelector';
 export * from './DateSelector';
 export * from './ImageInput';
+export * from './ItemPicker';

@@ -1,19 +1,23 @@
 import React from 'react';
-import { View, Text, StyleSheet } from 'react-native';
+import { View, Text, StyleSheet, TouchableOpacity } from 'react-native';
 
-const DateSelector = ({ date, month, day, label }) => {
+const DateSelector = ({ date, month, day, label, onPress }) => {
     const { holderStyle, inputStyle, labelStyle, containerStyle } = styles;
     return (
-        <View style={holderStyle}>
-            <Text style={{ color: 'white' }}>{label}</Text>
-            <View style={containerStyle}>
-                <Text style={inputStyle}>{date}</Text>
-                <View>
-                    <Text style={labelStyle}>{month}</Text>
-                    <Text style={labelStyle}>{day}</Text>
-                </View>
+    
+            <View style={holderStyle}>
+                <Text style={{ color: 'white' }}>{label}</Text>
+                <TouchableOpacity onPress={onPress}>
+                    <View style={containerStyle}>
+                        <Text style={inputStyle}>{date}</Text>
+                        <View style={{ paddingTop: 2 }}>
+                            <Text style={labelStyle}>{month}</Text>
+                            <Text style={labelStyle}>{day}</Text>
+                        </View>
+                    </View>
+                </TouchableOpacity>
             </View>
-        </View>
+      
     );
 };
 
@@ -21,16 +25,16 @@ const styles = {
     inputStyle: {
         color: 'white',
         fontSize: 35,
-        flex: 0.6
+        flex: 0.7
     },
     labelStyle: {
         color: 'white',
-        flex: 0.4
+        flex: 0.3
     },
     containerStyle: {
         flexDirection: 'row',
         borderBottomColor: 'white',
-        height: 60,
+        height: 65,
         borderBottomWidth: StyleSheet.hairlineWidth,
         paddingBottom: 4,
         marginRight: 10

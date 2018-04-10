@@ -1,27 +1,48 @@
 import React, { Component } from 'react';
-import { View, Text, ImageBackground, StyleSheet } from 'react-native';
+import { View, Text, ImageBackground, ScrollView } from 'react-native';
 import { Actions } from 'react-native-router-flux';
 import { connect } from 'react-redux';
 import DatePicker from 'react-native-datepicker';
+import moment from 'moment';
 import {
     SelectButton, 
     LocationSelector, 
     DateSelector,
     ImageInput,
-    Button
+    Button,
+    ItemPicker
  } from './common';
+import { 
+    selectDeapartureDate, 
+    selectReturnDate 
+} from '../actions/TripSearchActions';
 
 
 class TicketSearch extends Component {
 
     constructor(props) {
         super(props);
+        const dateToday = moment().format('YYYY-MM-DD dddd MMMM DD');
+        const dateTommorrow = moment().add(1, 'days').format('YYYY-MM-DD dddd MMMM DD');
+        const dateTodayStrings = dateToday.split(' ');
+        const dateTommorrowStrings = dateTommorrow.split(' ');
+        console.log(this.props);
         this.state = { 
             oneWaySelected: true, 
             returnSelected: false,
-            selectedStartDate: null,
+            departureDateChoosing: false,
+            returnDateChoosing: false,
+            departureDate: dateTodayStrings[3],
+            departureMonth: dateTodayStrings[2].toUpperCase(),
+            departureDay: dateTodayStrings[1].toUpperCase(),
+            returnDate: dateTommorrowStrings[3],
+            returnMonth: dateTommorrowStrings[2].toUpperCase(),
+            returnDay: dateTommorrowStrings[1].toUpperCase(),
+            currentDate: this.props.selectedDepartureDate,
+            pickerSelected: false
         };
-        console.log(this.props);
+        this.props.selectDeapartureDate(dateTodayStrings[0]);
+        this.props.selectReturnDate(dateTommorrowStrings[0]);
     }
     oneWayButtonPressed = () => {
         this.setState({ oneWaySelected: true, returnSelected: false });
@@ -35,96 +56,133 @@ class TicketSearch extends Component {
         Actions.autoCompleteListView({ portType });
     }
     
+    departureDateIsChoosing() {
+        console.log('Departure date is choosing');
+        console.log(this.props.selectedDepartureDate);
+        this.setState({ 
+            departureDateChoosing: true, 
+            returnDateChoosing: false,
+            currentDate: this.props.selectedDepartureDate
+        });
+        console.log(this.state.currentDate);
+        this.datePickerRef.onPressDate();
+    }
+    returnDateIsChoosing() {
+        console.log('Return date is choosing');
+        console.log(this.props.selectedReturnDate);
+        this.setState({ 
+            departureDateChoosing: false, 
+            returnDateChoosing: true,
+            currentDate: this.props.selectedReturnDate
+        });
+        console.log(this.state.currentDate);
+        this.datePickerRef.onPressDate();  
+    }
+
+    changeDate(date) {      
+        if (this.state.departureDateChoosing) {
+            const departureDateString = date.split(' ');
+            this.setState({
+                departureDate: departureDateString[3],
+                departureMonth: departureDateString[2].toUpperCase(),
+                departureDay: departureDateString[1].toUpperCase()
+            });
+            this.props.selectDeapartureDate(departureDateString[0]);
+        } else if (this.state.returnDateChoosing) {
+            const returnDateString = date.split(' ');
+            this.setState({
+                returnDate: returnDateString[3],
+                returnMonth: returnDateString[2].toUpperCase(),
+                returnDay: returnDateString[1].toUpperCase()
+            });
+            this.props.selectReturnDate(returnDateString[0]);
+        }
+    }
+
     render() {
         return (
             <ImageBackground
                 source={require('../images/app_background2.jpg')}
                 style={styles.container}
             >
-                <View style={styles.buttonContainer}>
-                    <SelectButton 
-                        pressed={this.state.oneWaySelected} 
-                        onPress={this.oneWayButtonPressed}
+                <ScrollView>
+                    <View style={styles.buttonContainer}>
+                        <SelectButton 
+                            pressed={this.state.oneWaySelected} 
+                            onPress={this.oneWayButtonPressed}
+                        >
+                            Oneway
+                        </SelectButton>
+                        <SelectButton 
+                            pressed={this.state.returnSelected} 
+                            onPress={this.returnButtonPressed}
+                        >
+                            Round Trip
+                        </SelectButton>
+                    </View>
+                    <LocationSelector
+                        onPress={() => this.searchForPort('departure')} 
+                        label="FROM" 
+                        name={this.props.selectedDestinationPort.city_name} 
+                        address={this.props.selectedDestinationPort.name}
+                        defaultText="Tap to select departure port"
+                    /> 
+                    <LocationSelector 
+                        onPress={() => this.searchForPort('destination')} 
+                        label="TO" 
+                        name={this.props.selectedDeparturePort.city_name} 
+                        address={this.props.selectedDeparturePort.name} 
+                        defaultText="Tap to select destination port"
+                    /> 
+                    <View style={styles.dateSelectorContainer}>
+                        <DateSelector 
+                            label="Departure" 
+                            date={this.state.departureDate} 
+                            month={this.state.departureMonth} 
+                            day={this.state.departureDay} 
+                            onPress={() => this.departureDateIsChoosing()}
+                        />
+                        {
+                        this.state.returnSelected ? 
+                            <DateSelector
+                                label="Return"
+                                date={this.state.returnDate}
+                                month={this.state.returnMonth}
+                                day={this.state.returnDay}
+                                onPress={() => this.returnDateIsChoosing()}
+                            /> 
+                            : 
+                            <View />
+                        }
+                    </View>
+                    <ImageInput oncPress={() => this.setState({ pickerSelected: true })} label="1" value="Adult" src={require('../images/passenger.png')} />   
+                    <Button 
+                        style={{ 
+                            marginTop: 20, 
+                            backgroundColor: 'red', 
+                            height: 50, 
+                            borderColor: 'red',
+                            margin: 0 
+                        }}
+                        propsTextStyle={{ color: 'white' }}
                     >
-                        Oneway
-                    </SelectButton>
-                    <SelectButton 
-                        pressed={this.state.returnSelected} 
-                        onPress={this.returnButtonPressed}
-                    >
-                        Round Trip
-                    </SelectButton>
-                </View>
-                <LocationSelector
-                     onPress={() => this.searchForPort('departure')} 
-                     label="FROM" 
-                     name={this.props.selectedDestinationPort.city_name} 
-                     address={this.props.selectedDestinationPort.name}
-                     defaultText="Tap to select departure port"
-                /> 
-                <LocationSelector 
-                    onPress={() => this.searchForPort('destination')} 
-                    label="TO" 
-                    name={this.props.selectedDeparturePort.city_name} 
-                    address={this.props.selectedDeparturePort.name} 
-                    defaultText="Tap to select destination port"
-                /> 
-                <View style={styles.dateSelectorContainer}>
-                    <DateSelector 
-                        label="Departure" 
-                        date="24" 
-                        month="APR" 
-                        day="TUESDAY" 
-                    />
-                    {
-                    this.state.returnSelected ? 
-                        <DateSelector
-                            label="Return"
-                            date="24"
-                            month="APR" 
-                            day="TUESDAY"
-                        /> 
-                        : 
-                        <View />
-                    }
-                </View>
-                <ImageInput label="1" value="Adult" src={require('../images/passenger.png')} />   
-                <Button 
-                  style={{ 
-                      marginTop: 20, 
-                      backgroundColor: 'red', 
-                      height: 50, 
-                      borderColor: 'red',
-                      margin: 0 
-                    }}
-                   propsTextStyle={{ color: 'white' }}
-                >
-                    Search
-                </Button>
-                <DatePicker
-                    style={{width: 200}}
-                    date={this.state.date}
-                    mode="date"
-                    placeholder="select date"
-                    format="YYYY-MM-DD"
-                    minDate="2016-05-01"
-                    maxDate="2016-06-01"
-                    confirmBtnText="Confirm"
-                    cancelBtnText="Cancel"
-                    customStyles={{
-                    dateIcon: {
-                        position: 'absolute',
-                        left: 0,
-                        top: 4,
-                        marginLeft: 0
-                    },
-                    dateInput: {
-                        marginLeft: 36
-                    }
-                    // ... You can check the source to find the other keys.
-                    }}
-                    
-                />
+                        Search
+                    </Button>
+                    <DatePicker
+                        style={{ width: 200 }}
+                        date={this.state.currentDate}
+                        mode="date"
+                        placeholder="select date"
+                        format="YYYY-MM-DD dddd MMMM DD"
+                        confirmBtnText="Confirm"
+                        cancelBtnText="Cancel"
+                        showIcon={false}
+                        hideText
+                        ref={(ref) => this.datePickerRef = ref}
+                        onDateChange={(date) => this.changeDate(date)}
+                    />  
+                    <ItemPicker modalVisible />   
+                </ScrollView>
             </ImageBackground>
         );
     }
@@ -164,10 +222,13 @@ const styles = {
 };
 
 const mapStateToProps = state => {
+    console.log(state);
     return { 
         selectedDeparturePort: state.selecteDeparturePort,
-        selectedDestinationPort: state.selecteDestinationPort
+        selectedDestinationPort: state.selecteDestinationPort,
+        selectedDepartureDate: state.selectedDepartureDate,
+        selectedReturnDate: state.selectedReturnDate
     };
 };
 
-export default connect(mapStateToProps, {})(TicketSearch);
+export default connect(mapStateToProps, { selectDeapartureDate, selectReturnDate })(TicketSearch);
