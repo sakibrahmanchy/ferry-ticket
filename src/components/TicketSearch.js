@@ -1,5 +1,5 @@
 import React, { Component } from 'react';
-import { View, Text, ImageBackground, ScrollView } from 'react-native';
+import { View, ImageBackground, ScrollView, Alert } from 'react-native';
 import { Actions } from 'react-native-router-flux';
 import { connect } from 'react-redux';
 import DatePicker from 'react-native-datepicker';
@@ -14,7 +14,9 @@ import {
  } from './common';
 import { 
     selectDeapartureDate, 
-    selectReturnDate 
+    selectReturnDate,
+    selectNumberOfPassengers,
+    selectTripType
 } from '../actions/TripSearchActions';
 
 
@@ -39,17 +41,22 @@ class TicketSearch extends Component {
             returnMonth: dateTommorrowStrings[2].toUpperCase(),
             returnDay: dateTommorrowStrings[1].toUpperCase(),
             currentDate: this.props.selectedDepartureDate,
-            pickerSelected: false
+            pickerSelected: false,
+            selectedItem: 1
         };
+        this.props.selectTripType(1);
         this.props.selectDeapartureDate(dateTodayStrings[0]);
         this.props.selectReturnDate(dateTommorrowStrings[0]);
+        this.props.selectNumberOfPassengers(1);
     }
     oneWayButtonPressed = () => {
         this.setState({ oneWaySelected: true, returnSelected: false });
+        this.props.selectTripType(1);
     }
 
     returnButtonPressed = () => {
         this.setState({ oneWaySelected: false, returnSelected: true });
+        this.props.selectTripType(2);
     }
 
     searchForPort = (portType) => {
@@ -67,6 +74,7 @@ class TicketSearch extends Component {
         console.log(this.state.currentDate);
         this.datePickerRef.onPressDate();
     }
+
     returnDateIsChoosing() {
         console.log('Return date is choosing');
         console.log(this.props.selectedReturnDate);
@@ -99,6 +107,31 @@ class TicketSearch extends Component {
         }
     }
 
+    closeModal() {
+        this.setState({ pickerSelected: false });
+    }
+
+    getSelectedItem(item) {
+        this.setState({ selectedItem: item, pickerSelected: false });
+        this.props.selectNumberOfPassengers(item);
+    }
+
+    searchForTrips() {
+        const alertMessages = [];
+        if (this.props.selectedDeparturePort === '') {
+            alertMessages.push('Please select departure port\n');
+        }
+        else alertMessages.push("");
+        if (this.props.selectedDestinationPort === '') {
+            alertMessages.push('Please select destination port\n');
+        }
+        else alertMessages.push("");
+        Alert.alert(
+            'Error',
+            alertMessages[0] + alertMessages[1]
+        );
+    }
+
     render() {
         return (
             <ImageBackground
@@ -123,15 +156,15 @@ class TicketSearch extends Component {
                     <LocationSelector
                         onPress={() => this.searchForPort('departure')} 
                         label="FROM" 
-                        name={this.props.selectedDestinationPort.city_name} 
-                        address={this.props.selectedDestinationPort.name}
+                        name={this.props.selectedDeparturePort.city_name} 
+                        address={this.props.selectedDeparturePort.name}
                         defaultText="Tap to select departure port"
                     /> 
                     <LocationSelector 
                         onPress={() => this.searchForPort('destination')} 
                         label="TO" 
-                        name={this.props.selectedDeparturePort.city_name} 
-                        address={this.props.selectedDeparturePort.name} 
+                        name={this.props.selectedDestinationPort.city_name} 
+                        address={this.props.selectedDestinationPort.name} 
                         defaultText="Tap to select destination port"
                     /> 
                     <View style={styles.dateSelectorContainer}>
@@ -155,7 +188,12 @@ class TicketSearch extends Component {
                             <View />
                         }
                     </View>
-                    <ImageInput oncPress={() => this.setState({ pickerSelected: true })} label="1" value="Adult" src={require('../images/passenger.png')} />   
+                    <ImageInput 
+                        onPress={() => this.setState({ pickerSelected: true })}
+                        label={this.state.selectedItem} 
+                        value="Adult" 
+                        src={require('../images/passenger.png')} 
+                    />   
                     <Button 
                         style={{ 
                             marginTop: 20, 
@@ -165,6 +203,7 @@ class TicketSearch extends Component {
                             margin: 0 
                         }}
                         propsTextStyle={{ color: 'white' }}
+                        onPress={() => this.searchForTrips()}
                     >
                         Search
                     </Button>
@@ -181,7 +220,11 @@ class TicketSearch extends Component {
                         ref={(ref) => this.datePickerRef = ref}
                         onDateChange={(date) => this.changeDate(date)}
                     />  
-                    <ItemPicker modalVisible />   
+                    <ItemPicker 
+                        modalVisible={this.state.pickerSelected} 
+                        onClose={() => this.closeModal()}
+                        callback={this.getSelectedItem.bind(this)}
+                    />  
                 </ScrollView>
             </ImageBackground>
         );
@@ -227,8 +270,15 @@ const mapStateToProps = state => {
         selectedDeparturePort: state.selecteDeparturePort,
         selectedDestinationPort: state.selecteDestinationPort,
         selectedDepartureDate: state.selectedDepartureDate,
-        selectedReturnDate: state.selectedReturnDate
+        selectedReturnDate: state.selectedReturnDate,
+        selectedTripType: state.selectedTripType
     };
 };
 
-export default connect(mapStateToProps, { selectDeapartureDate, selectReturnDate })(TicketSearch);
+export default connect(mapStateToProps, 
+    { 
+        selectDeapartureDate, 
+        selectReturnDate, 
+        selectNumberOfPassengers,
+        selectTripType
+    })(TicketSearch);

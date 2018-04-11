@@ -1,51 +1,73 @@
 import React from 'react';
-import { Modal, View, Text, StyleSheet } from 'react-native';
-import { CardSection } from './CardSection';
+import { Modal, View, Text, TouchableNativeFeedback } from 'react-native';
 
-const ItemPicker = ({ modalVisible }) => {
-    const { containerStyle, textStyle, CardSectionStyle } = styles;
+const renderItems = (callback) => {
+    const items = [];
+    const { textStyle, textHolderStyle } = styles;
+
+    for (let i = 1; i <= 10; i++) {
+        items.push(
+            <TouchableNativeFeedback 
+                style={textHolderStyle} 
+                onPress={() => { callback(i); }}
+            >
+                <View style={textHolderStyle}>
+                    <Text style={textStyle}>{i}</Text>
+                </View>
+            </TouchableNativeFeedback>
+        );
+    }   
+
+    return items;
+};
+
+
+const ItemPicker = ({ modalVisible, onClose, callback }) => {
+    const { containerStyle, holderStyle } = styles;
 
     return (
             <Modal
-                animationType={'slide'}
+                animationType="fade"
                 transparent
                 visible={modalVisible}
-                onRequestClose={() => {
-                   console.log('Modal has been closed');
-                }}
+                onRequestClose={onClose}
+                onPress={onClose}
             >
                 <View style={containerStyle}>
-                    <CardSection style={CardSectionStyle}>
-                        <Text style={textStyle}>1</Text>
-                        <Text style={textStyle}>2</Text>
-                        <Text style={textStyle}>3</Text>
-                        <Text style={textStyle}>4</Text>
-                        <Text style={textStyle}>5</Text>
-                        <Text style={textStyle}>6</Text>
-                        <Text style={textStyle}>7</Text>
-                        <Text style={textStyle}>8</Text>
-                    </CardSection>
+                    <View style={holderStyle}>
+                        { renderItems(callback) }
+                    </View>
                 </View>
             </Modal>
-        
     );
 };
 
 const styles = {
-    CardSectionStyle: {
-        justifyContent: 'center'
+    textHolderStyle: {
+        flex: 1
     },
     textStyle: {
-        flex: 1,
         fontSize: 18,
-        textAlign: 'center',
-        lineHeight: 40
+        justifyContent: 'center',
+        textAlign: 'center'
     },
     containerStyle: {
-        backgroundColor: 'rgba(0,0,0,0.75)',
+        backgroundColor: 'rgba(0,0,0, 0.7)',
         position: 'relative',
         flex: 1,
+        padding: 30,
         justifyContent: 'center'
+    },
+    holderStyle: {
+        shadowColor: 'red',
+        shadowOffset: { width: 2, height: 2 },
+        shadowOpacity: 4,
+        shadowRadius: 10,
+        elevation: 10,
+        flex: 1,
+        paddingTop: 10,
+        paddingBottom: 10,
+        backgroundColor: '#fff',
     }
 };
 

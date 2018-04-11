@@ -1,13 +1,12 @@
 import {
-    DEPARTURE_PORT_SELECTED
+    NUMBER_OF_PASSENGERS_SELECTED
 } from '../actions/types';
 
-const INITIAL_STATE = '';
+const INITIAL_STATE = {};
 
 export default (state = INITIAL_STATE, action) => {
     switch (action.type) {
-        case DEPARTURE_PORT_SELECTED:
-            console.log(action.payload);
+        case NUMBER_OF_PASSENGERS_SELECTED:
             return action.payload;
         default:
             return state;

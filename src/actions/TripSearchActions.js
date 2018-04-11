@@ -5,7 +5,9 @@ import {
     DEPARTURE_PORT_SELECTED,
     DESTINATION_PORT_SELECTED,
     DEPARTURE_DATE_SELECTED,
-    RETURN_DATE_SELECTED
+    RETURN_DATE_SELECTED,
+    NUMBER_OF_PASSENGERS_SELECTED,
+    TRIP_TYPE_SELECTED
 } from './types';
 
 export const portsFetch = (searchText) => {
@@ -22,7 +24,7 @@ export const portsFetch = (searchText) => {
 
 export const selectDeparture = (port) => {
     return (dispatch) => {
-        dispatch({ type: DESTINATION_PORT_SELECTED, payload: port });
+        dispatch({ type: DEPARTURE_PORT_SELECTED, payload: port });
         Actions.pop();
     };
 };
@@ -30,7 +32,7 @@ export const selectDeparture = (port) => {
 
 export const selectDestination = (port) => {
     return (dispatch) => {
-        dispatch({ type: DEPARTURE_PORT_SELECTED, payload: port });
+        dispatch({ type: DESTINATION_PORT_SELECTED, payload: port });
         Actions.pop();
     };
 };
@@ -47,3 +49,15 @@ export const selectReturnDate = (date) => {
     };  
 };
 
+export const selectNumberOfPassengers = (noOfPassengers) => {
+    return (dispatch) => {
+        dispatch({ type: NUMBER_OF_PASSENGERS_SELECTED, payload: noOfPassengers });
+    };  
+};
+
+
+export const selectTripType = (type) => {
+    return (dispatch) => {
+        dispatch({ type: TRIP_TYPE_SELECTED, payload: type });
+    };  
+};
