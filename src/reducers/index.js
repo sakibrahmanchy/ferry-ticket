@@ -7,6 +7,7 @@ import DepartureDateReducer from './SelectedDepartureDateReducer';
 import ReturnDateReducer from './SelectedReturnDateReducer';
 import PassengerReducer from './selectedNumberOfPassengers';
 import TripTypeReducer from './selectedTripType';
+import TripSearchReducer from './TripSearchReducer';
 
 export default combineReducers({
     appIntroduction: AppIntoductionReducer,
@@ -16,6 +17,7 @@ export default combineReducers({
     selectedDepartureDate: DepartureDateReducer,
     selectedReturnDate: ReturnDateReducer,
     selectedNumberOfPassengers: PassengerReducer,
-    selectedTripType: TripTypeReducer
+    selectedTripType: TripTypeReducer,
+    tripSearchResult: TripSearchReducer
 });
 

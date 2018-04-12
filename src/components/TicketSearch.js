@@ -16,7 +16,8 @@ import {
     selectDeapartureDate, 
     selectReturnDate,
     selectNumberOfPassengers,
-    selectTripType
+    selectTripType,
+    searchForTrips
 } from '../actions/TripSearchActions';
 
 
@@ -28,7 +29,6 @@ class TicketSearch extends Component {
         const dateTommorrow = moment().add(1, 'days').format('YYYY-MM-DD dddd MMMM DD');
         const dateTodayStrings = dateToday.split(' ');
         const dateTommorrowStrings = dateTommorrow.split(' ');
-        console.log(this.props);
         this.state = { 
             oneWaySelected: true, 
             returnSelected: false,
@@ -64,26 +64,20 @@ class TicketSearch extends Component {
     }
     
     departureDateIsChoosing() {
-        console.log('Departure date is choosing');
-        console.log(this.props.selectedDepartureDate);
         this.setState({ 
             departureDateChoosing: true, 
             returnDateChoosing: false,
             currentDate: this.props.selectedDepartureDate
         });
-        console.log(this.state.currentDate);
         this.datePickerRef.onPressDate();
     }
 
     returnDateIsChoosing() {
-        console.log('Return date is choosing');
-        console.log(this.props.selectedReturnDate);
         this.setState({ 
             departureDateChoosing: false, 
             returnDateChoosing: true,
             currentDate: this.props.selectedReturnDate
         });
-        console.log(this.state.currentDate);
         this.datePickerRef.onPressDate();  
     }
 
@@ -116,20 +110,35 @@ class TicketSearch extends Component {
         this.props.selectNumberOfPassengers(item);
     }
 
-    searchForTrips() {
+    validateTrips() {
         const alertMessages = [];
         if (this.props.selectedDeparturePort === '') {
             alertMessages.push('Please select departure port\n');
+        } else {
+            alertMessages.push('');
         }
-        else alertMessages.push("");
         if (this.props.selectedDestinationPort === '') {
             alertMessages.push('Please select destination port\n');
+        } else {
+            alertMessages.push('');
+        } 
+
+        if (this.props.selectedDeparturePort === '' || this.props.selectedDestinationPort === '') {
+            Alert.alert(
+                'Error',
+                alertMessages[0] + alertMessages[1]
+            );
+        } else {
+            const searchParams = {
+                trip_type: this.props.selectedTripType,
+                departure_port_id: this.props.selectedDeparturePort.id,
+                destination_port_id: this.props.selectedDestinationPort.id,
+                departure_date: this.props.selectedDepartureDate,
+                return_date: this.props.selectedReturnDate,
+                pax: this.props.selectedNumberOfPassengers
+            };
+            this.props.searchForTrips(searchParams);
         }
-        else alertMessages.push("");
-        Alert.alert(
-            'Error',
-            alertMessages[0] + alertMessages[1]
-        );
     }
 
     render() {
@@ -203,7 +212,7 @@ class TicketSearch extends Component {
                             margin: 0 
                         }}
                         propsTextStyle={{ color: 'white' }}
-                        onPress={() => this.searchForTrips()}
+                        onPress={() => this.validateTrips()}
                     >
                         Search
                     </Button>
@@ -265,13 +274,14 @@ const styles = {
 };
 
 const mapStateToProps = state => {
-    console.log(state);
     return { 
         selectedDeparturePort: state.selecteDeparturePort,
         selectedDestinationPort: state.selecteDestinationPort,
         selectedDepartureDate: state.selectedDepartureDate,
         selectedReturnDate: state.selectedReturnDate,
-        selectedTripType: state.selectedTripType
+        selectedTripType: state.selectedTripType,
+        selectedNumberOfPassengers: state.selectedNumberOfPassengers,
+        tripSearchResult: state.tripSearchResult
     };
 };
 
@@ -280,5 +290,6 @@ export default connect(mapStateToProps,
         selectDeapartureDate, 
         selectReturnDate, 
         selectNumberOfPassengers,
-        selectTripType
+        selectTripType,
+        searchForTrips
     })(TicketSearch);

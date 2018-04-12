@@ -24,7 +24,6 @@ class AutoCompleteListView extends Component {
     }
 
     render() {
-        console.log(this.props.portType);
         return (
                 <View>
                     <View style={{ flexDirection: 'row', backgroundColor: 'darkblue' }}>

@@ -3,6 +3,7 @@ import { Scene, Router } from 'react-native-router-flux';
 import AppIntro from './components/AppIntroduction';
 import TicketSearch from './components/TicketSearch';
 import AutoCompleteListView from './components/AutoCompleteListView';
+import SlideDemo from './components/AvailableTrips';
 
 const RouterComponent = () => {
     return (
@@ -16,11 +17,16 @@ const RouterComponent = () => {
                     navTransparent
                     hideNavBar
                     titleStyle={{ color: 'white', fontSize: 18 }}
-                    initial
+                    
                 />
                 <Scene
                     key="autoCompleteListView" 
                     component={AutoCompleteListView} 
+                />
+                <Scene
+                    key="avialableTrips"
+                    component={SlideDemo}
+                    initial
                 />
             </Scene>
         </Router>
