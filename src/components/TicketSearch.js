@@ -16,8 +16,7 @@ import {
     selectDeapartureDate, 
     selectReturnDate,
     selectNumberOfPassengers,
-    selectTripType,
-    searchForTrips
+    selectTripType
 } from '../actions/TripSearchActions';
 
 
@@ -129,15 +128,7 @@ class TicketSearch extends Component {
                 alertMessages[0] + alertMessages[1]
             );
         } else {
-            const searchParams = {
-                trip_type: this.props.selectedTripType,
-                departure_port_id: this.props.selectedDeparturePort.id,
-                destination_port_id: this.props.selectedDestinationPort.id,
-                departure_date: this.props.selectedDepartureDate,
-                return_date: this.props.selectedReturnDate,
-                pax: this.props.selectedNumberOfPassengers
-            };
-            this.props.searchForTrips(searchParams);
+           Actions.avialableTrips();
         }
     }
 
@@ -291,5 +282,4 @@ export default connect(mapStateToProps,
         selectReturnDate, 
         selectNumberOfPassengers,
         selectTripType,
-        searchForTrips
     })(TicketSearch);

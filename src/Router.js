@@ -8,7 +8,10 @@ import SlideDemo from './components/AvailableTrips';
 const RouterComponent = () => {
     return (
         <Router>
-            <Scene key="appIntro">
+            <Scene 
+                key="appIntro"
+                duration={0}
+            >
                 <Scene key="appIntroduction" component={AppIntro} hideNavBar  />
                 <Scene 
                     key="ticketSearch" 
@@ -17,16 +20,19 @@ const RouterComponent = () => {
                     navTransparent
                     hideNavBar
                     titleStyle={{ color: 'white', fontSize: 18 }}
-                    
+                    initial
+                    panHandlers={null}
                 />
                 <Scene
                     key="autoCompleteListView" 
-                    component={AutoCompleteListView} 
+                    component={AutoCompleteListView}
+                    panHandlers={null} 
                 />
                 <Scene
                     key="avialableTrips"
                     component={SlideDemo}
-                    initial
+                    hideNavBar
+                    panHandlers={null}
                 />
             </Scene>
         </Router>

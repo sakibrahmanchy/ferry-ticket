@@ -26,10 +26,11 @@ class AutoCompleteListView extends Component {
     render() {
         return (
                 <View>
-                    <View style={{ flexDirection: 'row', backgroundColor: 'darkblue' }}>
+                    <View style={{ flexDirection: 'row', backgroundColor: 'darkblue', padding: 10 }}>
                         <TouchableOpacity onPress={this.backButtonPressed} style={{ flex: 0.15, alignItems: 'center', margin: 15 }} ><Text style={{ color: 'white' }}>Back</Text></TouchableOpacity>
                         <TextInput
                             placeholder="Search a port"
+                            underlineColorAndroid='white'
                             style={{  
                                 marginLeft: 10,
                                 marginRight: 10,
@@ -37,7 +38,8 @@ class AutoCompleteListView extends Component {
                                 paddingLeft: 5,
                                 fontSize: 18,
                                 color: 'white',
-                                flex: 0.85
+                                flex: 0.85,
+                                
                             }}
                             placeholderTextColor='white'
                             onChangeText={this.portAddressChanged.bind(this)}
