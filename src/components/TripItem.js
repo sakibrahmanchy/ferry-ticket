@@ -4,22 +4,37 @@ import { Card, CardSection } from './common';
 
 class TripItem extends Component {
 
-    constructor(props) {
-        super(props);
-        console.log(this.props);
-    }
-    
-    componentWillMount() {
-        console.log(this.props);
-    }
-
     render() {
       return (
         <View>
             <Card>
-                <CardSection>
-                    <Image style={{ flex: 1, height: undefined, width: undefined, resizeMode: 'contain' }} source={this.props.image_url} />
-                    <Text style={{ fontSize: 20, padding: 10 }}>Brittanny Ferries</Text>
+                <CardSection style={this.props.selectedTrip ? { backgroundColor: 'lightblue' } : {}}>
+                <Image 
+                    style={{ flex: 0.2, height: 100, width: 20, resizeMode: 'contain' }} 
+                    source={{ uri: this.props.item.image_url }} 
+                />
+                    <View style={{ flexDirection: 'column', flex: 0.8, paddingLeft: 10 }}>
+                        <Text 
+                            style={{ fontSize: 20, fontWeight: 'bold' }}
+                        >
+                            {this.props.item.comapany_name}
+                        </Text>
+                        <Text 
+                            style={{ fontSize: 15 }}
+                        >
+                            {this.props.item.ferry_name}
+                        </Text>
+                        <Text 
+                            style={{ fontSize: 15 }}
+                        >
+                            Seats left: {this.props.item.remaining_seat}
+                        </Text>
+                        <Text 
+                            style={{ fontSize: 15 }}
+                        >
+                            Departure Date: {this.props.item.departure_date}, {this.props.item.departure_time}
+                        </Text>
+                    </View>
                 </CardSection>
             </Card>
         </View>

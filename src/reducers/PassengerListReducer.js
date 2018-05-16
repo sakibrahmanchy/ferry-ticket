@@ -1,18 +1,14 @@
 import {
-    AVAILABLE_TRIPS_FETCH_SUCCESS
+    ADD_NEW_PASSENGER
 } from '../actions/types';
 
-const INITIAL_STATE = {
-    search_result: null,
-
-};
+const INITIAL_STATE = [];
 
 export default (state = INITIAL_STATE, action) => {
     switch (action.type) {
-        case AVAILABLE_TRIPS_FETCH_SUCCESS:
-            return action.payload;
+        case ADD_NEW_PASSENGER:
+            return [...state, action.payload];
         default:
             return state;
     }
 };
-

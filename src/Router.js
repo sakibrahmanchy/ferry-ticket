@@ -3,7 +3,9 @@ import { Scene, Router } from 'react-native-router-flux';
 import AppIntro from './components/AppIntroduction';
 import TicketSearch from './components/TicketSearch';
 import AutoCompleteListView from './components/AutoCompleteListView';
-import SlideDemo from './components/AvailableTrips';
+import AvailableTrips from './components/AvailableTrips';
+import PassengerDetails from './components/PassengerDetail';
+import PassengerForm from './components/PassengerForm';
 
 const RouterComponent = () => {
     return (
@@ -12,7 +14,7 @@ const RouterComponent = () => {
                 key="appIntro"
                 duration={0}
             >
-                <Scene key="appIntroduction" component={AppIntro} hideNavBar  />
+                <Scene key="appIntroduction" component={AppIntro} hideNavBar />
                 <Scene 
                     key="ticketSearch" 
                     component={TicketSearch} 
@@ -20,8 +22,8 @@ const RouterComponent = () => {
                     navTransparent
                     hideNavBar
                     titleStyle={{ color: 'white', fontSize: 18 }}
-                    initial
                     panHandlers={null}
+                    initial
                 />
                 <Scene
                     key="autoCompleteListView" 
@@ -30,7 +32,19 @@ const RouterComponent = () => {
                 />
                 <Scene
                     key="avialableTrips"
-                    component={SlideDemo}
+                    component={AvailableTrips}
+                    hideNavBar
+                    panHandlers={null}
+                />
+                <Scene
+                    key="passengerDetails"
+                    component={PassengerDetails}
+                    hideNavBar
+                    panHandlers={null}
+                />
+                <Scene
+                    key="passengerForm"
+                    component={PassengerForm}
                     hideNavBar
                     panHandlers={null}
                 />

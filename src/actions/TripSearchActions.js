@@ -8,7 +8,9 @@ import {
     RETURN_DATE_SELECTED,
     NUMBER_OF_PASSENGERS_SELECTED,
     TRIP_TYPE_SELECTED,
-    AVAILABLE_TRIPS_FETCH_SUCCESS
+    AVAILABLE_TRIPS_FETCH_SUCCESS,
+    DEPARTURE_TRIP_SELECTED,
+    RETURN_TRIP_SELECTED
 } from './types';
 
 export const portsFetch = (searchText) => {
@@ -72,6 +74,18 @@ export const searchForTrips = (searchParams) => {
             .then((response) => {
                 dispatch({ type: AVAILABLE_TRIPS_FETCH_SUCCESS, payload: response.data });
             });
+    };
+};
+
+export const selectDepartureTrip = (tripId) => {
+    return (dispatch) => {
+        dispatch({ type: DEPARTURE_TRIP_SELECTED, payload: tripId });
+    };
+};
+
+export const selectReturnTrip = (tripId) => {
+    return (dispatch) => {
+        dispatch({ type: RETURN_TRIP_SELECTED, payload: tripId });
     };
 };
 

@@ -1,25 +1,41 @@
 import Drawer from 'react-native-drawer';
 import React, { Component } from 'react';
-import { View, Text, TouchableOpacity, FlatList, ActivityIndicator } from 'react-native';
+import { View, Text, TouchableOpacity, FlatList, ActivityIndicator, Alert } from 'react-native';
 import { Actions } from 'react-native-router-flux';
 import { connect } from 'react-redux';
 import { Button } from './common';
 import TripItem from './TripItem';
 import {
-  searchForTrips
+  searchForTrips,
+  selectDepartureTrip,
+  selectReturnTrip
 } from '../actions/TripSearchActions';
 
 class AvailableTrips extends Component {  
   
   constructor(props) {
     super(props);
-    this.state = { searchResults: this.props.tripSearchResult };
+    this.state = { 
+      dataFetched: false, 
+      searchResults: {}, 
+      refreshing: false,
+      returnTripEnabled: false,
+    };
   }
 
-  componentWillMount() { 
+  componentDidMount() { 
     this.searchTrips();
-    this.setState({ searchResults: this.props.searchResults });
-    console.log(this.state.searchResults);
+  }
+
+  componentWillReceiveProps(nextProps) {
+    if (nextProps.tripSearchResult.success) {
+      this.setState({ dataFetched: true, searchResults: nextProps.tripSearchResult, refreshing: false });
+      this.props = nextProps;
+      if (nextProps.tripSearchResult.data.return_trips.no_of_trips > 0) {
+        this.setState({ returnTripEnabled: true });
+      }
+    }
+    this.loadSpinner();
   }
 
   searchTrips() {
@@ -31,19 +47,9 @@ class AvailableTrips extends Component {
       return_date: this.props.selectedReturnDate,
       pax: this.props.selectedNumberOfPassengers
     };
-    console.log(this.state);
-    if (!this.state.searchResults) {
-      console.log(this.state.searchResults);
-      this.props.searchForTrips(searchParams);
-      this.setState({ searchResults: this.props.searchResults });
-    }
+    
+    this.props.searchForTrips(searchParams); 
     //console.log('here');
-  }
-
-
-  componentWillUpdate() {
-    console.log(this.state);
-    this.searchTrips();
   }
 
   closeControlPanel = () => {
@@ -54,23 +60,93 @@ class AvailableTrips extends Component {
     this._drawer.open();
   };
   
-  _renderItem = ({ item }) => (
-    <TripItem 
-      item={item}
-    />
-  );
+  _renderDepartureItem = ({ item }) => {
+    return (
+      <TouchableOpacity onPress={() => this.props.selectDepartureTrip(item.id)}>
+        <TripItem 
+          item={item}
+          selectedTrip={item.id === this.props.selectedDepartureTrip}
+        />
+      </TouchableOpacity>
+    );
+  };
+
+  _renderReturnItem = ({ item }) => {
+    return (
+      <TouchableOpacity onPress={() => this.props.selectReturnTrip(item.id)}>
+        <TripItem 
+          item={item}
+          selectedTrip={item.id === this.props.selectedReturnTrip}
+        />
+      </TouchableOpacity>
+    );
+  };
 
   loadSpinner() {
-    if (!this.state.searchResults) {
-      while (!this.state.searchResults) {
-        return (
-          <ActivityIndicator size="large" color="#0000ff" />
+    return (
+      <ActivityIndicator size="large" color="#0000ff" />
+    );
+  }
+
+  handleRefresh = () => {
+    this.setState({
+      refreshing: true
+    }, () => {
+      this.searchTrips();
+    });
+  }
+
+  backButtonPressed() {
+    Actions.pop();
+  }
+
+  validateTripBook() {
+    switch (this.props.selectedTripType) {
+      case 1: 
+          if (this.props.selectedDepartureTrip === null) {
+            Alert.alert(
+                'Error',
+                'Please select departure trip from list\n'
+            );
+          } else {
+            Actions.passengerDetails();
+          }
+        break;
+      case 2:
+        if (this.props.selectedDepartureTrip === null || this.props.selectedReturnTrip === null) {
+          Alert.alert(
+              'Error',
+              'Please select both departure and return trip from list\n'
+          );
+        } else {
+          Actions.passengerDetails();
+        }
+      break;
+      default:
+          Alert.alert(
+            'Error',
+            'Please select both departure and return trip from list\n'
         );
-      }
+      break;
     }
-    
-    console.log(this.state.searchResults);
-    this.renderDrawer();  
+  }
+
+  renderDrawerContent() {
+    if (this.state.returnTripEnabled) {
+      return (
+        <View style={{ flex: 1, backgroundColor: 'white', borderLeftColor: 'lightgrey', borderLeftWidth: 5 }}>
+          <FlatList
+              data={this.state.searchResults.data.return_trips.trip_info}
+              renderItem={this._renderReturnItem}
+              ListHeaderComponent={<Text style={{ padding: 10 }}>Return</Text>}
+              refreshing={this.state.refreshing}  
+              onRefresh={this.handleRefresh}
+              keyExtractor={this._keyExtractor}
+          />
+        </View>
+      );
+    } 
+    return null;
   }
 
   renderDrawer() {
@@ -79,12 +155,12 @@ class AvailableTrips extends Component {
         type="overlay"
         ref={(ref) => this._drawer = ref}
         content={
-         null
+          this.renderDrawerContent()
         }
         tapToClose
         openDrawerOffset={0.2} 
         panCloseMask={0.2}
-        closedDrawerOffset={-2}
+        closedDrawerOffset={this.state.returnTripEnabled ? 0.2 : -2}
         styles={drawerStyles}
         tweenHandler={
           (ratio) => ({
@@ -93,15 +169,17 @@ class AvailableTrips extends Component {
         } 
         acceptPan 
         side="right"
-        disabled
+        disabled={!this.state.returnTripEnabled}
       >
+      <View style={{ flex: 1, backgroundColor: 'white' }}>
         <FlatList
-          data={this.state.searchResults}
-          extraData={this.state.searchResults}
-          renderItem={this._renderItem}
-          style={{ padding: 10 }}
-          ListHeaderComponent={<Text>Departure</Text>}
+          data={this.state.searchResults.data.trips.trip_info}
+          renderItem={this._renderDepartureItem}
+          ListHeaderComponent={<Text style={{ padding: 10 }}>Departure</Text>}
+          refreshing={this.state.refreshing}
+          onRefresh={this.handleRefresh}
         />
+      </View>
       </Drawer>
     );
   }
@@ -117,22 +195,34 @@ class AvailableTrips extends Component {
                     marginRight: 10,
                     paddingRight: 5,
                     paddingLeft: 5, 
-                    color: 'white',
                     flex: 0.85
                 }}
             >
-              <Text style={{ fontSize: 20, color: 'white' }}>Dhaka To Kolkata</Text>
+              <Text style={{ fontSize: 20, color: 'white' }}>{this.props.selectedDeparturePort.city_name} To {this.props.selectedDestinationPort.city_name }</Text>
               <Text style={{ fontSize: 12, color: 'white' }}>Depart 13 May - Return 02 May | 1 Adult</Text>
             </View>
         </View>
-       
+          { this.state.dataFetched ? this.renderDrawer() : this.loadSpinner() }
+          <Button 
+            style={{ 
+                marginTop: 20, 
+                backgroundColor: 'darkblue', 
+                height: 50, 
+                borderColor: 'darkblue',
+                margin: 20 
+            }}
+            propsTextStyle={{ color: 'white' }}
+            onPress={() => this.validateTripBook()}
+          >
+            Book Now
+        </Button>
       </View>
     );
   }
 }
 
 const drawerStyles = {
-  drawer: { shadowColor: '#000000', shadowOpacity: 0.8, shadowRadius: 3 },
+  drawer: { shadowColor: '#000000', shadowOpacity: 0, shadowRadius: 3 },
   main: { paddingLeft: 3 },
 };
 
@@ -144,8 +234,11 @@ const mapStateToProps = state => {
       selectedReturnDate: state.selectedReturnDate,
       selectedTripType: state.selectedTripType,
       selectedNumberOfPassengers: state.selectedNumberOfPassengers,
-      tripSearchResult: state.tripSearchResult
+      tripSearchResult: state.tripSearchResult,
+      selectedDepartureTrip: state.selectedTrips.departureTrip,
+      selectedReturnTrip: state.selectedTrips.returnTrip
   };
 };
 
-export default connect(mapStateToProps, { searchForTrips })(AvailableTrips);
+export default connect(mapStateToProps, 
+  { searchForTrips, selectDepartureTrip, selectReturnTrip })(AvailableTrips);

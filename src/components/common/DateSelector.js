@@ -1,11 +1,11 @@
 import React from 'react';
 import { View, Text, StyleSheet, TouchableOpacity } from 'react-native';
 
-const DateSelector = ({ date, month, day, label, onPress }) => {
+const DateSelector = ({ date, month, day, label, onPress, style }) => {
     const { holderStyle, inputStyle, labelStyle, containerStyle } = styles;
     return (
     
-            <View style={holderStyle}>
+            <View style={[holderStyle, style]}>
                 <Text style={{ color: 'white' }}>{label}</Text>
                 <TouchableOpacity onPress={onPress}>
                     <View style={containerStyle}>

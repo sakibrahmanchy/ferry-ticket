@@ -1,18 +1,16 @@
 import {
-    AVAILABLE_TRIPS_FETCH_SUCCESS
+    GET_PASSENGER_INFO
 } from '../actions/types';
 
 const INITIAL_STATE = {
-    search_result: null,
-
+    tripInfo: null, 
 };
 
 export default (state = INITIAL_STATE, action) => {
     switch (action.type) {
-        case AVAILABLE_TRIPS_FETCH_SUCCESS:
-            return action.payload;
+        case GET_PASSENGER_INFO:
+            return { ...state, tripInfo: action.payload };
         default:
             return state;
     }
 };
-

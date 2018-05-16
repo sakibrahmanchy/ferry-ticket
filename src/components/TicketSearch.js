@@ -133,6 +133,11 @@ class TicketSearch extends Component {
     }
 
     render() {
+        const itemArray = [];
+        for (let i = 1; i <= 10; i++) {
+            itemArray[i] = i;
+        }
+        
         return (
             <ImageBackground
                 source={require('../images/app_background2.jpg')}
@@ -208,7 +213,7 @@ class TicketSearch extends Component {
                         Search
                     </Button>
                     <DatePicker
-                        style={{ width: 200 }}
+                        style={{ width: 0 }}
                         date={this.state.currentDate}
                         mode="date"
                         placeholder="select date"
@@ -224,6 +229,7 @@ class TicketSearch extends Component {
                         modalVisible={this.state.pickerSelected} 
                         onClose={() => this.closeModal()}
                         callback={this.getSelectedItem.bind(this)}
+                        list={itemArray}
                     />  
                 </ScrollView>
             </ImageBackground>

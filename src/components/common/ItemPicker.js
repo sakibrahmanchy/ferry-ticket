@@ -1,30 +1,30 @@
 import React from 'react';
 import { Modal, View, Text, TouchableNativeFeedback } from 'react-native';
 
-const renderItems = (callback) => {
+const renderItems = (callback, list) => {
     const items = [];
     const { textStyle, textHolderStyle } = styles;
-
-    for (let i = 1; i <= 10; i++) {
+    
+    for (const i in list) {
         items.push(
             <TouchableNativeFeedback 
                 style={textHolderStyle} 
                 onPress={() => { callback(i); }}
+                key={i}
             >
                 <View style={textHolderStyle}>
-                    <Text style={textStyle}>{i}</Text>
+                    <Text style={textStyle}>{list[i]}</Text>
                 </View>
             </TouchableNativeFeedback>
         );
     }   
-
     return items;
 };
 
 
-const ItemPicker = ({ modalVisible, onClose, callback }) => {
+const ItemPicker = ({ modalVisible, onClose, callback, list }) => {
     const { containerStyle, holderStyle } = styles;
-
+    
     return (
             <Modal
                 animationType="fade"
@@ -35,7 +35,7 @@ const ItemPicker = ({ modalVisible, onClose, callback }) => {
             >
                 <View style={containerStyle}>
                     <View style={holderStyle}>
-                        { renderItems(callback) }
+                        { renderItems(callback, list) }
                     </View>
                 </View>
             </Modal>
