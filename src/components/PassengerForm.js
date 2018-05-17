@@ -14,6 +14,7 @@ import {
     changePassengerNationality,
     changePassengerType,
 } from '../actions/PassengerFormActions';
+import moment from 'moment';
 import {
     addNewPassenger
 } from '../actions/PassengerListActions';
@@ -146,7 +147,10 @@ class PassengerForm extends Component {
                   }}
               >
                 <Text style={{ fontSize: 20, color: 'white' }}>{this.props.selectedDeparturePort.city_name} To {this.props.selectedDestinationPort.city_name }</Text>
-                <Text style={{ fontSize: 12, color: 'white' }}>Depart 13 May - Return 02 May | 1 Adult</Text>
+                <Text style={{ fontSize: 12, color: 'white' }}>
+              Depart {moment(this.props.selectedDepartureDate).date()} {moment(this.props.selectedDepartureDate).format('MMMM')}
+              {this.state.returnTripEnabled ? "- Return "+moment(this.props.selectedReturnDate).date()+ " " +moment(this.props.selectedReturnDate).format('MMMM'): null} | {this.props.selectedNumberOfPassengers} Adult
+              </Text>
               </View>
             </View>
             <Card style={style.cardStyle}>

@@ -5,6 +5,7 @@ import { Actions } from 'react-native-router-flux';
 import { connect } from 'react-redux';
 import { Button } from './common';
 import TripItem from './TripItem';
+import moment from 'moment';
 import {
   searchForTrips,
   selectDepartureTrip,
@@ -199,7 +200,10 @@ class AvailableTrips extends Component {
                 }}
             >
               <Text style={{ fontSize: 20, color: 'white' }}>{this.props.selectedDeparturePort.city_name} To {this.props.selectedDestinationPort.city_name }</Text>
-              <Text style={{ fontSize: 12, color: 'white' }}>Depart 13 May - Return 02 May | 1 Adult</Text>
+              <Text style={{ fontSize: 12, color: 'white' }}>
+            Depart {moment(this.props.selectedDepartureDate).date()} {moment(this.props.selectedDepartureDate).format('MMMM')}
+            {this.state.returnTripEnabled ? "- Return "+moment(this.props.selectedReturnDate).date()+ " " +moment(this.props.selectedReturnDate).format('MMMM'): null} | {this.props.selectedNumberOfPassengers} Adult
+              </Text>
             </View>
         </View>
           { this.state.dataFetched ? this.renderDrawer() : this.loadSpinner() }

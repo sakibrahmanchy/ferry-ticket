@@ -12,6 +12,7 @@ import SelectedTrips from './selectedTripReducer';
 import TripBookReducer from './TripBookReducer';
 import PassengerFormReducer from './PassengerFormReducer';
 import PassengerListReducer from './PassengerListReducer';
+import TicketCollectorInfoReducer from './TicketCollectorInfoReducer';
 
 export default combineReducers({
     appIntroduction: AppIntoductionReducer,
@@ -26,6 +27,7 @@ export default combineReducers({
     selectedTrips: SelectedTrips,
     tripInfo: TripBookReducer,
     currentPassengerInfo: PassengerFormReducer,
-    passengers: PassengerListReducer
+    passengers: PassengerListReducer,
+    ticketCollector: TicketCollectorInfoReducer
 });
 

@@ -7,16 +7,21 @@ import {
   ActivityIndicator, 
   ScrollView, 
   KeyboardAvoidingView,
-  FlatList
+  FlatList,
+  Alert
 } from 'react-native';
 import { Actions } from 'react-native-router-flux';
 import { connect } from 'react-redux';
 import { Card, CardSection, Input } from './common';
 import PassengerItem from './PassengerItem';
+import moment from "moment";
 import {
     getPassengerTicketInfo
 } from '../actions/TripBookActions';
-
+import{
+  onChangeTicketCollectorEmail,
+  onChangeTicketCollectorPhone
+} from '../actions/TicketCollectorActions';
 
 class PassengerDetail extends Component {  
   
@@ -27,6 +32,7 @@ class PassengerDetail extends Component {
       searchResults: {}, 
       refreshing: false,
       returnTripEnabled: false,
+      totalTIcektPrice: 0,
       passengers: []
     };
   }
@@ -49,6 +55,7 @@ class PassengerDetail extends Component {
       if (nextProps.tripSearchResult.data.return_trips.no_of_trips > 0) {
         this.setState({ returnTripEnabled: true });
       }
+      this.getTotalTicketPrice();
     }
     //console.log(this.state);
     this.loadSpinner();
@@ -64,7 +71,7 @@ class PassengerDetail extends Component {
     
     this.props.getPassengerTicketInfo(searchParams); 
   }
-
+  
   bookTicket() {
     const name = [];
     const gender = [];
@@ -74,7 +81,6 @@ class PassengerDetail extends Component {
     const nationality = [];
     const type_id = [];
     this.state.passengers.forEach((passenger) => {
-      console.log(passenger);
         name.push(passenger.name);
         gender.push(passenger.gender);
         dob.push(passenger.dob);
@@ -83,23 +89,59 @@ class PassengerDetail extends Component {
         nationality.push(passenger.nationality);
         type_id.push(passenger.type_id);
     });
-    console.log(name);
-    axios.post('http://www.bvigrimscloud.com/ferry/public/api/ticket/book', {
-      no_of_passengers: this.state.pax_no,
-      email: 'sakib.cse11.cuet@gmail.com',
-      contact_no: '01242142121',
-      return_trip_id: this.state.return_trip_id,
-      trip_id: this.state.one_way_trip_id,
-      name,
-      gender,
-      dob,
-      passport_no,
-      passport_exp,
-      nationality,
-      type_id
-    }).then((response) => {
-        console.log(response);
-    });
+    let ValidticketCollectorEmail = this.validateEmail(this.props.ticketCollectorInfo.email);
+    let validTicketCollectorPhone = !isNaN(this.props.ticketCollectorInfo.phone);
+    let errormessage = "";
+    if(!ValidticketCollectorEmail)
+      errormessage+="Invalid email\n";
+
+    if(!validTicketCollectorPhone)
+      errormessage+="Invalid Phone Number\n";
+    
+    if(this.props.ticketCollectorInfo.phone === "")
+      errormessage+="Invalid Phone Number\n";
+    if(!ValidticketCollectorEmail||!validTicketCollectorPhone||this.props.ticketCollectorInfo.phone === "") {
+       Alert.alert(
+         'Errror',
+         errormessage
+       )
+    }
+    else if(this.props.selectedNumberOfPassengers !== this.props.passengers.length){
+      Alert.alert(
+        'Errror',
+        'Add all passenger info'
+      )
+    }
+    else{
+      axios.post('http://192.168.43.113/ferry/public/api/ticket/book', {
+        return_trip: 0,
+        no_of_passengers: this.state.pax_no,
+        email: this.props.ticketCollectorInfo.email,
+        contact_no: this.props.ticketCollectorInfo.phone,
+        return_trip_id: ( this.props.selectedReturnTrip === null ?  0: this.props.selectedReturnTrip),
+        trip_id: ( this.props.selectedDepartureTrip === null ?  0: this.props.selectedDepartureTrip  ),
+        name,
+        gender,
+        dob,
+        passport_no,
+        passport_exp,
+        nationality,
+        type_id
+      }).then((response) => {
+          if(response.data.success) {
+            Actions.ticketBookStatus({ data: response.data});
+          } else {
+            Alert(
+              'Error',
+              'Failed to book ticekt'
+            );
+          }
+      }).catch(function (error) {
+          console.log(error.response);
+      });
+    }
+
+    
   }
 
   _renderPassengerItem = ({ item }) => {
@@ -118,6 +160,12 @@ class PassengerDetail extends Component {
     );
   }
 
+
+  validateEmail(email) {
+    var re = /^(([^<>()\[\]\\.,;:\s@"]+(\.[^<>()\[\]\\.,;:\s@"]+)*)|(".+"))@((\[[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\])|(([a-zA-Z\-0-9]+\.)+[a-zA-Z]{2,}))$/;
+    return re.test(String(email).toLowerCase());
+  }
+
   handleRefresh = () => {
     this.setState({
       refreshing: true
@@ -132,11 +180,32 @@ class PassengerDetail extends Component {
 
   renderTicketUnitPrice(ticketPriceList) {
     const items = [];
-
+    
     for (const aTicket of ticketPriceList) {
       items.push(<Text key={aTicket.id}>{aTicket.name}: {aTicket.price}</Text>);
     }
     return items;
+  }
+
+  getTotalTicketPrice(){
+    let passengers = this.props.passengers;
+    let ticketPrice = 0;
+    let returnTripStatus =  ( this.props.selectedReturnTrip === null ? false : true);
+    console.log(returnTripStatus);
+    for(let passenger of passengers) {
+      if(passenger.type_id==1) {
+        ticketPrice += this.props.tripInfo.data.departure_trip.passenger_type[0].price;
+        if(returnTripStatus)
+        ticketPrice += this.props.tripInfo.data.return_trip.passenger_type[0].price;
+      }else{
+        ticketPrice += this.props.tripInfo.data.departure_trip.passenger_type[1].price;
+        if(returnTripStatus)
+        ticketPrice += this.props.tripInfo.data.return_trip.passenger_type[1].price;
+      }
+    }
+    this.setState({
+      totalTIcektPrice: ticketPrice
+    })
   }
 
   renderTripInfo(tripInfo, tripType) {
@@ -177,11 +246,15 @@ class PassengerDetail extends Component {
           <CardSection style={style.tripInfoStyle}>
              <Input
                 label="Email"
-                palceholder="Enter Email"
+                placeholder="Enter Email"
+                onChangeText={(email) => {this.props.onChangeTicketCollectorEmail(email)}}
+                value={this.props.ticketCollectorInfo.email}
               />
               <Input
                 label="Phone"
-                palceholder="Enter Phone"
+                placeholder="Enter Phone"
+                onChangeText={(phone)=>{this.props.onChangeTicketCollectorPhone(phone)}}
+                value={this.props.ticketCollectorInfo.phone}
               />
           </CardSection>
         </Card>
@@ -197,7 +270,7 @@ class PassengerDetail extends Component {
             />
           </CardSection>
           <CardSection style={style.tripInfoStyle}>
-              <TouchableOpacity onPress={() => Actions.passengerForm()}>
+              <TouchableOpacity onPress={() => this.addNewPassenger()}>
                 <Text style={{ color: 'darkblue' }}>+Add new passenger</Text>
               </TouchableOpacity>
           </CardSection>
@@ -206,11 +279,25 @@ class PassengerDetail extends Component {
     );
   }
 
+  addNewPassenger() {
+    let current_passengers_inserted = this.props.passengers.length;
+    console.log(this.props.selectedNumberOfPassengers);
+    if(current_passengers_inserted<this.props.selectedNumberOfPassengers) {
+      Actions.passengerForm();
+    }
+    else{
+      Alert.alert(
+        'Error',
+        "Maximum number of passenger is added"
+      );
+    }
+  }
+
   renderBookButton() {
     return (
       <View style={{ position: 'absolute', left: 0, right: 0, bottom: 0, height: 30, flexDirection: 'row', flex: 1 }}>
-        <Text style={{ padding: 20, fontSize: 16, alignSelf: 'center', flex: 0.5, backgroundColor: 'black', color: 'white' }}> $23,301 </Text>
-        <TouchableOpacity onPress={() => this.bookTicket()}><Text style={{ padding: 20, fontSize: 16, alignSelf: 'center', flex: 0.5, backgroundColor: 'red', color: 'white' }}> BOOK FLIGHT </Text></TouchableOpacity>
+        <Text style={{ paddingLeft: 20, paddingTop: 5, paddingBottom: 20, fontSize: 20, alignSelf: 'center', flex: 0.5, backgroundColor: '#1b1b1c', color: 'white' }}> Total: ${this.state.totalTIcektPrice} </Text>
+        <TouchableOpacity style={{flex: 0.5,backgroundColor: 'red', paddingLeft: 10, paddingBottom:20, paddingTop:10, alignSelf: 'center'}} onPress={() => this.bookTicket()}><Text style={{ fontSize: 16, alignSelf: 'center', color: 'white' }}> BOOK TICKET </Text></TouchableOpacity>
       </View>  
     );
   }
@@ -232,7 +319,10 @@ class PassengerDetail extends Component {
                   }}
               >
                 <Text style={{ fontSize: 20, color: 'white' }}>{this.props.selectedDeparturePort.city_name} To {this.props.selectedDestinationPort.city_name }</Text>
-                <Text style={{ fontSize: 12, color: 'white' }}>Depart 13 May - Return 02 May | 1 Adult</Text>
+                <Text style={{ fontSize: 12, color: 'white' }}>
+              Depart {moment(this.props.selectedDepartureDate).date()} {moment(this.props.selectedDepartureDate).format('MMMM')}
+              {this.state.returnTripEnabled ? "- Return "+moment(this.props.selectedReturnDate).date()+ " " +moment(this.props.selectedReturnDate).format('MMMM'): null} | {this.props.selectedNumberOfPassengers} Adult
+              </Text>
               </View>
           </View>
           <ScrollView>
@@ -274,8 +364,11 @@ const mapStateToProps = state => {
       selectedDepartureTrip: state.selectedTrips.departureTrip,
       selectedReturnTrip: state.selectedTrips.returnTrip,
       tripInfo: state.tripInfo.tripInfo,
-      passengers: state.passengers
+      passengers: state.passengers,
+      ticketCollectorInfo: state.ticketCollector
   };
 };
 
-export default connect(mapStateToProps, { getPassengerTicketInfo })(PassengerDetail);
+export default connect(mapStateToProps, { getPassengerTicketInfo, 
+                                          onChangeTicketCollectorEmail,
+                                          onChangeTicketCollectorPhone })(PassengerDetail);

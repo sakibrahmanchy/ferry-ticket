@@ -6,6 +6,7 @@ import AutoCompleteListView from './components/AutoCompleteListView';
 import AvailableTrips from './components/AvailableTrips';
 import PassengerDetails from './components/PassengerDetail';
 import PassengerForm from './components/PassengerForm';
+import TicketBookStatus from './components/TicketBookStatus';
 
 const RouterComponent = () => {
     return (
@@ -45,6 +46,12 @@ const RouterComponent = () => {
                 <Scene
                     key="passengerForm"
                     component={PassengerForm}
+                    hideNavBar
+                    panHandlers={null}
+                />
+                <Scene
+                    key="ticketBookStatus"
+                    component={TicketBookStatus}
                     hideNavBar
                     panHandlers={null}
                 />

@@ -15,7 +15,7 @@ import {
 
 export const portsFetch = (searchText) => {
     //console.log(searchText);
-    const url = 'http://www.bvigrimscloud.com/ferry/public/api/port/all?port_name=' + searchText;
+    const url = 'http://192.168.43.113/ferry/public/api/port/all?port_name=' + searchText;
 
     return (dispatch) => {
         axios.get(url)
@@ -67,7 +67,7 @@ export const selectTripType = (type) => {
 
 
 export const searchForTrips = (searchParams) => {
-    let url = 'http://www.bvigrimscloud.com/ferry/public/api/trip/search';
+    let url = 'http://192.168.43.113/ferry/public/api/trip/search';
     url = bindParamsToUrl(url, searchParams);
     return (dispatch) => {
         axios.get(url)
