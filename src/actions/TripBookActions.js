@@ -4,8 +4,8 @@ import {
 } from './types';
 
 export const getPassengerTicketInfo = (searchParams) => {
-    let url = 'http://192.168.43.113/ferry/public/api/booking/passenger-details';
-    url = bindParamsToUrl(url, searchParams);
+    let url = 'http://bvigrimscloud.com/ferry/public/api/booking/passenger-details';
+    url = bindParamsToUrl(url, searchParams);  
     return (dispatch) => {
         axios.get(url)
         .then((response) => {

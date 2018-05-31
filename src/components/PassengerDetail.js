@@ -1,5 +1,6 @@
 import React, { Component } from 'react';
 import axios from 'axios';
+import moment from 'moment';
 import { 
   View, 
   Text, 
@@ -14,11 +15,12 @@ import { Actions } from 'react-native-router-flux';
 import { connect } from 'react-redux';
 import { Card, CardSection, Input } from './common';
 import PassengerItem from './PassengerItem';
-import moment from "moment";
+import SeatPlan from './SeatPlan';
 import {
     getPassengerTicketInfo
 } from '../actions/TripBookActions';
-import{
+
+import {
   onChangeTicketCollectorEmail,
   onChangeTicketCollectorPhone
 } from '../actions/TicketCollectorActions';
@@ -72,6 +74,63 @@ class PassengerDetail extends Component {
     this.props.getPassengerTicketInfo(searchParams); 
   }
   
+  getTotalTicketPrice() {
+    const passengers = this.props.passengers;
+    let ticketPrice = 0;
+    const returnTripStatus =  ( this.props.selectedReturnTrip === null ? false : true);
+
+    for (const passenger of passengers) {
+      if (passenger.type_id === 1) {
+        ticketPrice += this.props.tripInfo.data.departure_trip.passenger_type[0].price;
+        if (returnTripStatus) {
+          ticketPrice += this.props.tripInfo.data.return_trip.passenger_type[0].price;
+        }
+      } else {
+        ticketPrice += this.props.tripInfo.data.departure_trip.passenger_type[1].price;
+        if (returnTripStatus) {
+          ticketPrice += this.props.tripInfo.data.return_trip.passenger_type[1].price;
+        }
+      }
+    }
+    this.setState({
+      totalTIcektPrice: ticketPrice
+    });
+  }
+
+  loadSpinner() {
+    return (
+      <ActivityIndicator size="large" color="#0000ff" />
+    );
+  }
+
+
+  validateEmail(email) {
+    const re = /^(([^<>()\[\]\\.,;:\s@"]+(\.[^<>()\[\]\\.,;:\s@"]+)*)|(".+"))@((\[[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\])|(([a-zA-Z\-0-9]+\.)+[a-zA-Z]{2,}))$/;
+    return re.test(String(email).toLowerCase());
+  }
+
+  handleRefresh = () => {
+    this.setState({
+      refreshing: true
+    }, () => {
+      this.searchTrips();
+    });
+  }
+
+  backButtonPressed() {
+    Actions.pop();
+  }
+
+  _renderPassengerItem = ({ item }) => {
+    return (
+      // <TouchableOpacity onPress={() => this.props.selectDepartureTrip(item.id)}>
+        <PassengerItem 
+          item={item}
+        />
+      // </TouchableOpacity>
+    );
+  };
+
   bookTicket() {
     const name = [];
     const gender = [];
@@ -89,31 +148,34 @@ class PassengerDetail extends Component {
         nationality.push(passenger.nationality);
         type_id.push(passenger.type_id);
     });
-    let ValidticketCollectorEmail = this.validateEmail(this.props.ticketCollectorInfo.email);
-    let validTicketCollectorPhone = !isNaN(this.props.ticketCollectorInfo.phone);
-    let errormessage = "";
-    if(!ValidticketCollectorEmail)
-      errormessage+="Invalid email\n";
-
-    if(!validTicketCollectorPhone)
-      errormessage+="Invalid Phone Number\n";
+    const ValidticketCollectorEmail = this.validateEmail(this.props.ticketCollectorInfo.email);
+    const validTicketCollectorPhone = !isNaN(this.props.ticketCollectorInfo.phone);
+    let errormessage = '';
+    if (!ValidticketCollectorEmail) {
+      errormessage += 'Invalid email\n';
+    }
     
-    if(this.props.ticketCollectorInfo.phone === "")
-      errormessage+="Invalid Phone Number\n";
-    if(!ValidticketCollectorEmail||!validTicketCollectorPhone||this.props.ticketCollectorInfo.phone === "") {
+    if (!validTicketCollectorPhone) {
+      errormessage += 'Invalid Phone Number\n';
+    }
+      
+    if (this.props.ticketCollectorInfo.phone === '') {
+      errormessage += 'Invalid Phone Number\n';
+    }
+      
+   if (!ValidticketCollectorEmail || !validTicketCollectorPhone
+        || this.props.ticketCollectorInfo.phone === '') {
        Alert.alert(
          'Errror',
          errormessage
-       )
-    }
-    else if(this.props.selectedNumberOfPassengers !== this.props.passengers.length){
+       );
+    } else if (this.props.selectedNumberOfPassengers !== this.props.passengers.length) {
       Alert.alert(
         'Errror',
         'Add all passenger info'
-      )
-    }
-    else{
-      axios.post('http://192.168.43.113/ferry/public/api/ticket/book', {
+      );
+    } else {
+      axios.post('http://bvigrimscloud.com/ferry/public/api/ticket/book', {
         return_trip: 0,
         no_of_passengers: this.state.pax_no,
         email: this.props.ticketCollectorInfo.email,
@@ -128,84 +190,30 @@ class PassengerDetail extends Component {
         nationality,
         type_id
       }).then((response) => {
-          if(response.data.success) {
-            Actions.ticketBookStatus({ data: response.data});
+          if (response.data.success) {
+            Actions.ticketBookStatus({ data: response.data });
           } else {
             Alert(
               'Error',
               'Failed to book ticekt'
             );
           }
-      }).catch(function (error) {
+      }).catch((error) => {
           console.log(error.response);
       });
+    } 
+  }
+
+  addNewPassenger() {
+    const currentPassengersInserted = this.props.passengers.length;
+    if (currentPassengersInserted < this.props.selectedNumberOfPassengers) {
+      Actions.passengerForm();
+    } else {
+      Alert.alert(
+        'Error',
+        'Maximum number of passenger is added'
+      );
     }
-
-    
-  }
-
-  _renderPassengerItem = ({ item }) => {
-    return (
-      // <TouchableOpacity onPress={() => this.props.selectDepartureTrip(item.id)}>
-        <PassengerItem 
-          item={item}
-        />
-      // </TouchableOpacity>
-    );
-  };
-
-  loadSpinner() {
-    return (
-      <ActivityIndicator size="large" color="#0000ff" />
-    );
-  }
-
-
-  validateEmail(email) {
-    var re = /^(([^<>()\[\]\\.,;:\s@"]+(\.[^<>()\[\]\\.,;:\s@"]+)*)|(".+"))@((\[[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\])|(([a-zA-Z\-0-9]+\.)+[a-zA-Z]{2,}))$/;
-    return re.test(String(email).toLowerCase());
-  }
-
-  handleRefresh = () => {
-    this.setState({
-      refreshing: true
-    }, () => {
-      this.searchTrips();
-    });
-  }
-
-  backButtonPressed() {
-    Actions.pop();
-  }
-
-  renderTicketUnitPrice(ticketPriceList) {
-    const items = [];
-    
-    for (const aTicket of ticketPriceList) {
-      items.push(<Text key={aTicket.id}>{aTicket.name}: {aTicket.price}</Text>);
-    }
-    return items;
-  }
-
-  getTotalTicketPrice(){
-    let passengers = this.props.passengers;
-    let ticketPrice = 0;
-    let returnTripStatus =  ( this.props.selectedReturnTrip === null ? false : true);
-    console.log(returnTripStatus);
-    for(let passenger of passengers) {
-      if(passenger.type_id==1) {
-        ticketPrice += this.props.tripInfo.data.departure_trip.passenger_type[0].price;
-        if(returnTripStatus)
-        ticketPrice += this.props.tripInfo.data.return_trip.passenger_type[0].price;
-      }else{
-        ticketPrice += this.props.tripInfo.data.departure_trip.passenger_type[1].price;
-        if(returnTripStatus)
-        ticketPrice += this.props.tripInfo.data.return_trip.passenger_type[1].price;
-      }
-    }
-    this.setState({
-      totalTIcektPrice: ticketPrice
-    })
   }
 
   renderTripInfo(tripInfo, tripType) {
@@ -233,7 +241,7 @@ class PassengerDetail extends Component {
   }
 
   renderContent() {
-    
+    console.log(this.props.tripInfo.data.departure_trip);
     return (
       <View style={{ flex: 1, paddingBottom: 60 }}>
           {this.renderTripInfo(this.props.tripInfo.data.departure_trip, 'Departurting Info')}
@@ -253,7 +261,7 @@ class PassengerDetail extends Component {
               <Input
                 label="Phone"
                 placeholder="Enter Phone"
-                onChangeText={(phone)=>{this.props.onChangeTicketCollectorPhone(phone)}}
+                onChangeText={(phone) => { this.props.onChangeTicketCollectorPhone(phone); }}
                 value={this.props.ticketCollectorInfo.phone}
               />
           </CardSection>
@@ -275,29 +283,36 @@ class PassengerDetail extends Component {
               </TouchableOpacity>
           </CardSection>
         </Card>
+        <Card style={style.cardStyle}>
+            <CardSection style={style.cardTitleStyle}>
+              <Text style={{ fontSize: 18, color: 'white' }}>Seat Plan</Text>
+            </CardSection>
+            <CardSection>
+                <SeatPlan 
+                  numCols={this.props.tripInfo.data.departure_trip.grid.row} 
+                  numRows={this.props.tripInfo.data.departure_trip.grid.column}
+                  bookedList={this.props.tripInfo.data.departure_trip.bookedSeatInfo}
+                />
+            </CardSection>
+        </Card>
       </View>
     );
   }
 
-  addNewPassenger() {
-    let current_passengers_inserted = this.props.passengers.length;
-    console.log(this.props.selectedNumberOfPassengers);
-    if(current_passengers_inserted<this.props.selectedNumberOfPassengers) {
-      Actions.passengerForm();
+  renderTicketUnitPrice(ticketPriceList) {
+    const items = [];
+    
+    for (const aTicket of ticketPriceList) {
+      items.push(<Text key={aTicket.id}>{aTicket.name}: {aTicket.price}</Text>);
     }
-    else{
-      Alert.alert(
-        'Error',
-        "Maximum number of passenger is added"
-      );
-    }
+    return items;
   }
 
   renderBookButton() {
     return (
       <View style={{ position: 'absolute', left: 0, right: 0, bottom: 0, height: 30, flexDirection: 'row', flex: 1 }}>
         <Text style={{ paddingLeft: 20, paddingTop: 5, paddingBottom: 20, fontSize: 20, alignSelf: 'center', flex: 0.5, backgroundColor: '#1b1b1c', color: 'white' }}> Total: ${this.state.totalTIcektPrice} </Text>
-        <TouchableOpacity style={{flex: 0.5,backgroundColor: 'red', paddingLeft: 10, paddingBottom:20, paddingTop:10, alignSelf: 'center'}} onPress={() => this.bookTicket()}><Text style={{ fontSize: 16, alignSelf: 'center', color: 'white' }}> BOOK TICKET </Text></TouchableOpacity>
+        <TouchableOpacity style={{ flex: 0.5, backgroundColor: 'red', paddingLeft: 10, paddingBottom: 20, paddingTop: 10, alignSelf: 'center'}} onPress={() => this.bookTicket()}><Text style={{ fontSize: 16, alignSelf: 'center', color: 'white' }}> BOOK TICKET </Text></TouchableOpacity>
       </View>  
     );
   }
