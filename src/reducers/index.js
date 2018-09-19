@@ -13,6 +13,10 @@ import TripBookReducer from './TripBookReducer';
 import PassengerFormReducer from './PassengerFormReducer';
 import PassengerListReducer from './PassengerListReducer';
 import TicketCollectorInfoReducer from './TicketCollectorInfoReducer';
+import SeatPlanReducer from './SeatPlanReducer';
+import PaymentFormReducer from './PaymentFormReducer';
+import authReducer from './AuthReducer';
+import historyReducer from './HistoryReducer';
 
 export default combineReducers({
     appIntroduction: AppIntoductionReducer,
@@ -28,6 +32,10 @@ export default combineReducers({
     tripInfo: TripBookReducer,
     currentPassengerInfo: PassengerFormReducer,
     passengers: PassengerListReducer,
-    ticketCollector: TicketCollectorInfoReducer
+    ticketCollector: TicketCollectorInfoReducer,
+    seatPlan: SeatPlanReducer,
+    payment: PaymentFormReducer,
+    auth: authReducer,
+    history: historyReducer
 });
 

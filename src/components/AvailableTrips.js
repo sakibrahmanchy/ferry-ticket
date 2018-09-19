@@ -1,9 +1,9 @@
 import Drawer from 'react-native-drawer';
 import React, { Component } from 'react';
-import { View, Text, TouchableOpacity, FlatList, ActivityIndicator, Alert } from 'react-native';
+import { View, Text, TouchableOpacity, FlatList, ActivityIndicator, Alert, Image, Dimensions } from 'react-native';
 import { Actions } from 'react-native-router-flux';
 import { connect } from 'react-redux';
-import { Button } from './common';
+import { Button, Header } from './common';
 import TripItem from './TripItem';
 import moment from 'moment';
 import {
@@ -11,6 +11,9 @@ import {
   selectDepartureTrip,
   selectReturnTrip
 } from '../actions/TripSearchActions';
+
+const DEVICE_WIDTH = Dimensions.get('window').width;
+const DEVICE_HEIGHT = Dimensions.get('window').height;
 
 class AvailableTrips extends Component {  
   
@@ -21,6 +24,7 @@ class AvailableTrips extends Component {
       searchResults: {}, 
       refreshing: false,
       returnTripEnabled: false,
+      noDataFound: false 
     };
   }
 
@@ -32,9 +36,15 @@ class AvailableTrips extends Component {
     if (nextProps.tripSearchResult.success) {
       this.setState({ dataFetched: true, searchResults: nextProps.tripSearchResult, refreshing: false });
       this.props = nextProps;
-      if (nextProps.tripSearchResult.data.return_trips.no_of_trips > 0) {
-        this.setState({ returnTripEnabled: true });
+      if (nextProps.tripSearchResult.data !== null) 
+      {
+        if (nextProps.tripSearchResult.data.return_trips.no_of_trips > 0) {
+          this.setState({ returnTripEnabled: true });
+        }
+      } else {
+        this.setState({ noDataFound: true });
       }
+      
     }
     this.loadSpinner();
   }
@@ -151,75 +161,100 @@ class AvailableTrips extends Component {
   }
 
   renderDrawer() {
-    return (
-      <Drawer 
-        type="overlay"
-        ref={(ref) => this._drawer = ref}
-        content={
-          this.renderDrawerContent()
-        }
-        tapToClose
-        openDrawerOffset={0.2} 
-        panCloseMask={0.2}
-        closedDrawerOffset={this.state.returnTripEnabled ? 0.2 : -2}
-        styles={drawerStyles}
-        tweenHandler={
-          (ratio) => ({
-              main: { opacity: (2 - ratio) / 2 }
-          })
-        } 
-        acceptPan 
-        side="right"
-        disabled={!this.state.returnTripEnabled}
-      >
-      <View style={{ flex: 1, backgroundColor: 'white' }}>
-        <FlatList
-          data={this.state.searchResults.data.trips.trip_info}
-          renderItem={this._renderDepartureItem}
-          ListHeaderComponent={<Text style={{ padding: 10 }}>Departure</Text>}
-          refreshing={this.state.refreshing}
-          onRefresh={this.handleRefresh}
+    if (this.state.noDataFound) {
+      return (
+      <View>
+        <Image
+          style={{ height: DEVICE_HEIGHT - 200, width: DEVICE_WIDTH }}
+          resizeMode="contain"
+          source={require('../components/images/no_trips.png')} 
         />
-      </View>
-      </Drawer>
-    );
+      </View>);
+    } else {
+      return (
+        <Drawer 
+          type="overlay"
+          ref={(ref) => this._drawer = ref}
+          content={
+            this.renderDrawerContent()
+          }
+          tapToClose
+          openDrawerOffset={0.2} 
+          panCloseMask={0.2}
+          closedDrawerOffset={this.state.returnTripEnabled ? 0.2 : -2}
+          styles={drawerStyles}
+          tweenHandler={
+            (ratio) => ({
+                main: { opacity: (2 - ratio) / 2 }
+            })
+          } 
+          acceptPan 
+          side="right"
+          disabled={!this.state.returnTripEnabled}
+        >
+        <View style={{ flex: 1, backgroundColor: 'white' }}>
+          <FlatList
+            data={this.state.searchResults.data.trips.trip_info}
+            renderItem={this._renderDepartureItem}
+            ListHeaderComponent={<Text style={{ padding: 10 }}>Departure</Text>}
+            refreshing={this.state.refreshing}
+            onRefresh={this.handleRefresh}
+          />
+        </View>
+        </Drawer>
+      );
+    }
   }
 
+ _renderHeaderComponent() {
+   return (
+    <View
+        style={{  
+            marginLeft: 10,
+            marginRight: 10,
+            paddingRight: 5,
+            paddingLeft: 5, 
+            flex: 0.85,
+            paddingTop: 20
+        }}
+    >
+      <Text style={{ fontSize: 20, color: 'white' }}>{this.props.selectedDeparturePort.city_name} To {this.props.selectedDestinationPort.city_name }</Text>
+      <Text style={{ fontSize: 12, color: 'white' }}>
+    Depart {moment(this.props.selectedDepartureDate).date()} {moment(this.props.selectedDepartureDate).format('MMMM')}
+    {this.state.returnTripEnabled ? "- Return "+moment(this.props.selectedReturnDate).date()+ " " +moment(this.props.selectedReturnDate).format('MMMM'): null} | {this.props.selectedNumberOfPassengers} Adult
+      </Text>
+    </View>
+   );
+ }
+
+ renderBookButton() {
+   return (
+    <Button 
+        style={{ 
+            marginTop: 20, 
+            backgroundColor: 'darkblue', 
+            height: 50, 
+            borderColor: 'darkblue',
+            margin: 20 
+        }}
+        propsTextStyle={{ color: 'white' }}
+        onPress={() => this.validateTripBook()}
+      >
+        Book Now
+    </Button>
+   );
+ }
+
   render() {
+    console.log(this.dataFetched, this.noDataFound);
     return (
       <View style={{ flex: 1 }}>
-        <View style={{ flexDirection: 'row', backgroundColor: 'darkblue', padding: 10 }}>
-            <TouchableOpacity onPress={this.backButtonPressed} style={{ flex: 0.15, alignItems: 'center', margin: 15 }} ><Text style={{ color: 'white' }}>Back</Text></TouchableOpacity>
-            <View
-                style={{  
-                    marginLeft: 10,
-                    marginRight: 10,
-                    paddingRight: 5,
-                    paddingLeft: 5, 
-                    flex: 0.85
-                }}
-            >
-              <Text style={{ fontSize: 20, color: 'white' }}>{this.props.selectedDeparturePort.city_name} To {this.props.selectedDestinationPort.city_name }</Text>
-              <Text style={{ fontSize: 12, color: 'white' }}>
-            Depart {moment(this.props.selectedDepartureDate).date()} {moment(this.props.selectedDepartureDate).format('MMMM')}
-            {this.state.returnTripEnabled ? "- Return "+moment(this.props.selectedReturnDate).date()+ " " +moment(this.props.selectedReturnDate).format('MMMM'): null} | {this.props.selectedNumberOfPassengers} Adult
-              </Text>
-            </View>
-        </View>
+          <Header
+            backButtonPressed={this.backButtonPressed}
+            children={ this._renderHeaderComponent()}    
+          />
           { this.state.dataFetched ? this.renderDrawer() : this.loadSpinner() }
-          <Button 
-            style={{ 
-                marginTop: 20, 
-                backgroundColor: 'darkblue', 
-                height: 50, 
-                borderColor: 'darkblue',
-                margin: 20 
-            }}
-            propsTextStyle={{ color: 'white' }}
-            onPress={() => this.validateTripBook()}
-          >
-            Book Now
-        </Button>
+          { (this.state.dataFetched && !this.state.noDataFound) ? this.renderBookButton() : null}
       </View>
     );
   }

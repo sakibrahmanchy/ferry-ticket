@@ -1,10 +1,23 @@
 import React, { Component } from 'react';
 import { connect } from 'react-redux';
-import { View, Text } from 'react-native';
-import { emailChanged, passwordChanged, loginUser } from '../actions'; 
-import { Card, CardSection, Button, Input, Spinner } from './common';
+import { View, Text, BackHandler } from 'react-native';
+import { Actions } from 'react-native-router-flux';
+import { emailChanged, passwordChanged, loginUser } from '../actions/loginActions'; 
+import Logo from './loginComponents/Logo';
+import Form from './loginComponents/Form';
+import Wallpaper from './loginComponents/Wallpaper';
+import ButtonSubmit from './loginComponents/ButtonSubmit';
+import SignupSection from './loginComponents/SignupSection';
 
 class LoginForm extends Component {
+
+    constructor(props) {
+        super(props);
+        BackHandler.addEventListener('hardwareBackPress', () => {
+            Actions.dashboard(); // works best when the goBack is async
+            return true;
+        });
+    }
 
     onEmailChange(text) {
        this.props.emailChanged(text);
@@ -32,39 +45,25 @@ class LoginForm extends Component {
         }
     }
 
-    renderButton() {
-        if (this.props.loading) {
-           return <Spinner size="large" />;
-        } 
-            return (
-                <Button onPress={this.onButtonPress.bind(this)}>Login</Button>
-            );   
-    }
+    // renderButton() {
+    //     if (this.props.loading) {
+    //        return <Spinner size="large" />;
+    //     } 
+    //         return (
+    //             <Button onPress={this.onButtonPress.bind(this)}>Login</Button>
+    //         );   
+    // }
+
 
     render() {
         return (
-            <Card>
-                <CardSection>
-                    <Input 
-                        label="email"
-                        placeholder="youremail@yourdomain"
-                        onChangeText={this.onEmailChange.bind(this)}
-                        value={this.props.email}
-                    />
-                </CardSection>
-                <CardSection>
-                    <Input 
-                        secureTextEntry
-                        label="Password"
-                        placeholder="xxxxxxx"
-                        onChangeText={this.onPasswordChange.bind(this)}
-                    />
-                </CardSection>
-                {this.onRenderError()}
-                <CardSection>
-                   {this.renderButton()}
-                </CardSection>
-            </Card>
+            <Wallpaper>
+                {this.onRenderError}
+                <Logo />
+                <Form />
+                <SignupSection />
+                <ButtonSubmit />
+            </Wallpaper>
         );
     }
 }
@@ -83,6 +82,8 @@ const mapStateToProps = ({ auth }) => {
     return { email, password, error, loading };
 };
 
+
+// export default LoginForm;
 export default connect(mapStateToProps, {
      emailChanged, passwordChanged, loginUser
  })(LoginForm);

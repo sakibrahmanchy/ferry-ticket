@@ -1,8 +1,5 @@
-import axios from 'axios';
 import {
-    ADD_NEW_PASSENGER,
-    TICKET_COLLECTOR_EMAIL_CHANGED,
-    TICKET_COLLECTOR_PHONE_CHANGED
+    ADD_NEW_PASSENGER
 } from './types';
 
 
@@ -11,5 +8,3 @@ export const addNewPassenger = (passenger) => {
         dispatch({ type: ADD_NEW_PASSENGER, payload: passenger });
     };
 };
-
-

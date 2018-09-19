@@ -1,5 +1,5 @@
 import React, { Component } from 'react';
-import { View, ImageBackground, ScrollView, Alert } from 'react-native';
+import { View, ImageBackground, ScrollView, Alert, StatusBar, StatusBarStyle } from 'react-native';
 import { Actions } from 'react-native-router-flux';
 import { connect } from 'react-redux';
 import DatePicker from 'react-native-datepicker';
@@ -48,6 +48,8 @@ class TicketSearch extends Component {
         this.props.selectReturnDate(dateTommorrowStrings[0]);
         this.props.selectNumberOfPassengers(1);
     }
+
+    
     oneWayButtonPressed = () => {
         this.setState({ oneWaySelected: true, returnSelected: false });
         this.props.selectTripType(1);
@@ -139,10 +141,15 @@ class TicketSearch extends Component {
         }
         
         return (
+            
             <ImageBackground
-                source={require('../images/app_background2.jpg')}
+                source={require('../images/app_background3.jpg')}
                 style={styles.container}
             >
+            <StatusBar
+                backgroundColor="transparent"
+                translucent
+            />
                 <ScrollView>
                     <View style={styles.buttonContainer}>
                         <SelectButton 

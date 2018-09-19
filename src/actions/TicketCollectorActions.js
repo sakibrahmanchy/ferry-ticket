@@ -1,4 +1,3 @@
-import axios from 'axios';
 import {    
     TICKET_COLLECTOR_EMAIL_CHANGED,
     TICKET_COLLECTOR_PHONE_CHANGED

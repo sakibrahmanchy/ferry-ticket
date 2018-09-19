@@ -4,7 +4,8 @@ import { View, Text, TouchableOpacity,
 import { Actions } from 'react-native-router-flux';
 import { connect } from 'react-redux';
 import DatePicker from 'react-native-datepicker';
-import { Card, CardSection, Input } from './common';
+import { Card, CardSection, Input, Header } from './common';
+import { FormLabel, FormInput } from 'react-native-elements';
 import {
     changePassengerName,
     changePassengerPassportNumber,
@@ -69,13 +70,13 @@ class PassengerForm extends Component {
     }
 
     validateForm(props) {
-        let fieldsSubmitted = 0;
+        let fieldsNotSubmitted = 0;
         Object.keys(props.currentPassengerInfo).forEach((key) => {
             if (props.currentPassengerInfo[key] !== '') {
-                fieldsSubmitted++;
+                fieldsNotSubmitted++;
             }
         });
-        if (fieldsSubmitted === 7) {
+        if (fieldsNotSubmitted === 7) {
             this.setState({ submitDisabled: false });
         } else {
             this.setState({ submitDisabled: true });
@@ -128,6 +129,27 @@ class PassengerForm extends Component {
         Actions.passengerDetails();
     }
 
+    _renderHeaderComponent() {
+        return (
+            <View
+                style={{  
+                    marginLeft: 10,
+                    marginRight: 10,
+                    paddingRight: 5,
+                    paddingLeft: 5, 
+                    flex: 0.85,
+                    paddingTop: 20
+                }}
+            >
+            <Text style={{ fontSize: 20, color: 'white' }}>{this.props.selectedDeparturePort.city_name} To {this.props.selectedDestinationPort.city_name }</Text>
+            <Text style={{ fontSize: 12, color: 'white' }}>
+            Depart {moment(this.props.selectedDepartureDate).date()} {moment(this.props.selectedDepartureDate).format('MMMM')}
+            {this.state.returnTripEnabled ? "- Return "+moment(this.props.selectedReturnDate).date()+ " " +moment(this.props.selectedReturnDate).format('MMMM'): null} | {this.props.selectedNumberOfPassengers} Adult
+            </Text>
+            </View>
+        );
+    }
+
   render() {
     return (
         <View 
@@ -135,30 +157,16 @@ class PassengerForm extends Component {
             style={{ flex: 1, backgroundColor: '#ddd' }}
         >
             <ScrollView>
-            <View style={{ flexDirection: 'row', backgroundColor: 'darkblue', padding: 10 }}>
-              <TouchableOpacity onPress={this.backButtonPressed} style={{ flex: 0.15, alignItems: 'center', margin: 15 }} ><Text style={{ color: 'white' }}>Back</Text></TouchableOpacity>
-              <View
-                  style={{  
-                      marginLeft: 10,
-                      marginRight: 10,
-                      paddingRight: 5,
-                      paddingLeft: 5, 
-                      flex: 0.85
-                  }}
-              >
-                <Text style={{ fontSize: 20, color: 'white' }}>{this.props.selectedDeparturePort.city_name} To {this.props.selectedDestinationPort.city_name }</Text>
-                <Text style={{ fontSize: 12, color: 'white' }}>
-              Depart {moment(this.props.selectedDepartureDate).date()} {moment(this.props.selectedDepartureDate).format('MMMM')}
-              {this.state.returnTripEnabled ? "- Return "+moment(this.props.selectedReturnDate).date()+ " " +moment(this.props.selectedReturnDate).format('MMMM'): null} | {this.props.selectedNumberOfPassengers} Adult
-              </Text>
-              </View>
-            </View>
+            <Header
+                children={this._renderHeaderComponent()}  
+            />
             <Card style={style.cardStyle}>
                 <CardSection style={style.cardTitleStyle}>
                     <Text style={{ color: 'white' }}>Passenger Informations</Text>
                 </CardSection>
                 <CardSection>
-                    <Input
+                    <FormLabel>Full name</FormLabel>
+                    <FormInput
                         label="Full name"
                         name="Full name"
                         placeholder="name"
@@ -166,8 +174,8 @@ class PassengerForm extends Component {
                     />
                 </CardSection>
                 <CardSection>
-                    <Input
-                        label="Passport No."
+                    <FormLabel>Passport No.</FormLabel>
+                    <FormInput
                         name="passport_number"
                         placeholder="Passport No." 
                         onChangeText={this.setPassportNumber.bind(this)}

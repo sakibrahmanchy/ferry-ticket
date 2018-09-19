@@ -4,6 +4,7 @@ import {
 } from '../actions/types';
 
 export const doneButtonClicked = () => {
+    //Actions.ticketSearch();
     Actions.ticketSearch();
     return {
         type: DONE_BUTTON_CLICKED,

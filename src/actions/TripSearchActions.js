@@ -67,12 +67,14 @@ export const selectTripType = (type) => {
 
 
 export const searchForTrips = (searchParams) => {
-    let url = 'http://bvigrimscloud.com/ferry/public/api/trip/search';
+    let url = 'http://www.bvigrimscloud.com/ferry/public/api/trip/search';
     url = bindParamsToUrl(url, searchParams);
     return (dispatch) => {
         axios.get(url)
             .then((response) => {
                 dispatch({ type: AVAILABLE_TRIPS_FETCH_SUCCESS, payload: response.data });
+            }).catch(error => {
+                console.log(error.response);
             });
     };
 };

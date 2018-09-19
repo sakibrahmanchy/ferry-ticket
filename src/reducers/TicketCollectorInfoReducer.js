@@ -11,9 +11,9 @@ const INITIAL_STATE = {
 export default (state = INITIAL_STATE, action) => {
     switch (action.type) {
         case TICKET_COLLECTOR_EMAIL_CHANGED:
-            return {...state, email: action.payload};
+            return { ...state, email: action.payload };
         case TICKET_COLLECTOR_PHONE_CHANGED:
-            return {...state, phone: action.payload};
+            return { ...state, phone: action.payload };
         default:
             return state;
     }

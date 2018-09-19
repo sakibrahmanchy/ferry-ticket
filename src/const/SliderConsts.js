@@ -1,25 +1,72 @@
+const styles = {
+    image: {
+      width: 320,
+      height: 320,
+    },
+    titleStyle: {
+      fontWeight: 'bold',
+      fontSize: 30,
+      fontFamily: 'monospace',
+      paddingTop: 20
+    },
+    textStyle: {
+      fontSize: 15,
+      fontFamily: 'monospace',
+      paddingTop: -40
+    },
+  };
+
+
 export default(
     [{
-        title: 'Welcome!',
-        description: 'Ferry Mobile App!',
-        img: 'https://www.hdwallpaperhub.com/wp-content/uploads/Material/3/HD%20Material%20Design%20Wallpaper%200125-950x594.jpg',
-        imgStyle: {
-            height: 80 * 2.5,
-            width: 109 * 2.5,
+        key: 'somethun',
+        title: 'READY TO TRAVEL?',
+        text: 'Choose your destination, plan your trip, pick the best ferry for your holiday.',
+        image: require('../assets/app-intro/7.jpg'),
+        imageStyle: {
+          width: 320, 
+          height: 400,
         },
-        backgroundColor: '#090449',
-        fontColor: '#fff',
-        level: 10,
-        }, {
-        title: 'Go Simple!',
-        description: 'Search & Book!',
-        img: 'https://lh3.googleusercontent.com/EmQ01jWJu408ALGU_Ebz55VuHfm5h0DdNeIjTzzK5QFe6b0JNUPknGL7GmoH8jA0wUA=h310',
-        imgStyle: {
-            height: 93 * 2.5,
-            width: 103 * 2.5,
+        titleStyle: {
+          fontWeight: 'bold',
+          fontSize: 30,
+          fontFamily: 'monospace',
+          paddingTop: 20,
+          color: 'white'
         },
-        backgroundColor: '#016FB9',
-        fontColor: '#fff',
-        level: 10,
-    }]
+        textStyle: {
+          fontSize: 15,
+          fontFamily: 'monospace',
+          paddingTop: -40,
+          color: 'white'
+        }, 
+        backgroundColor: '#45BDBC',
+      },
+      {
+        key: 'somethun1',
+        title: 'PLAN A TRIP',
+        text: 'Hasle-free and quick booking to a variety number of destinations',
+        image: require('../assets/app-intro/1.jpg'),
+        titleStyle: styles.titleStyle,
+        textStyle: styles.textStyle,
+        imageStyle: {
+          width: 320,
+          height: 400,
+        },
+        backgroundColor: '#59B2AC',
+      },
+      {
+        key: 'somethun-dos',
+        title: 'Stay Connected',
+        titleStyle: styles.titleStyle,
+        textStyle: styles.textStyle,
+        text: 'Access your trips from any where, no matter the device is cellphone or pc.',
+        image:  require('../assets/app-intro/2.jpeg'),
+        imageStyle:  {
+          width: 320,
+          height: 320,
+        },
+        backgroundColor: '#45BDBC',
+      },
+    ]
 );

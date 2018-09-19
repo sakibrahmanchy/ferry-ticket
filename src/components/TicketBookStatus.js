@@ -1,9 +1,7 @@
 import React, { Component } from 'react';
-import { View, Text, TextInput, TouchableOpacity } from 'react-native';
-import { connect } from 'react-redux';
+import { View, Linking, BackHandler } from 'react-native';
 import { Actions } from 'react-native-router-flux';
-import AutoCompleteList from './AutoCompleteList';
-import { portsFetch } from '../actions/TripSearchActions'; 
+import { PricingCard } from 'react-native-elements';
 
 // const store = createStore(reducers, {}, applyMiddleware(ReduxThunk));
 
@@ -12,21 +10,24 @@ class TicketBookStatus extends Component {
     constructor(props) {
         super(props);
         console.disableYellowBox = true;
-        console.log(this.props.data);
+        BackHandler.addEventListener('hardwareBackPress', () => {
+            Actions.dashboard(); // works best when the goBack is async
+            return true;
+        });
+        // console.log(this.props.data);
     }
-
-    
 
     render() {
         return (
-            <View>
-                <View style={{ flexDirection: 'column', backgroundColor: 'green', paddingTop: 200,paddingBottom:400, paddingLeft:20 }}>
-                    <Text style={{ color: 'white', fontSize: 40, alignSelf: 'center'}}> Success! </Text>
-                    <Text style={{ color: 'white', fontSize: 15, alignSelf: 'center'}}> Ticket has been booked successfully! </Text>
-                    <Text style={{ color: 'white', alignSelf:'center',paddingTop:50, fontSize: 18}}>Visit</Text>
-                    <Text style={{ color: 'white', alignSelf:'center',fontSize: 14}}>{this.props.data.data.print_url}</Text>
-                    <Text style={{ color: 'white', alignSelf:'center', fontSize: 18}}>to print your ticket.</Text>
-
+            <View style={{ flex: 1, }}>
+                <View style={{ flex: 1, backgroundColor: 'green', justifyContent: 'center' }}>
+                    <PricingCard
+                        color='green'
+                        title='Ticket Confirmed'
+                        info={['All tickets are non refundable', 'All rights reserved to bvigrimscloud.com', 'Visit www.bvigrimscloud.com for more info' ]}
+                        button={{ title: 'Download  Ticket', icon: 'file-download' }}
+                        onButtonPress={() => { Linking.openURL(this.props.data.data.print_url); }}
+                    />
                 </View>
             </View>
         );
