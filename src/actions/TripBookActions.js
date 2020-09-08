@@ -2,9 +2,10 @@ import axios from 'axios';
 import {
     GET_PASSENGER_INFO
 } from './types';
+import { BASE_API } from '../api';
 
 export const getPassengerTicketInfo = (searchParams) => {
-    let url = 'http://bvigrimscloud.com/ferry/public/api/booking/passenger-details';
+    let url = `${BASE_API}/booking/passenger-details`;
     url = bindParamsToUrl(url, searchParams);  
     return (dispatch) => {
         axios.get(url)

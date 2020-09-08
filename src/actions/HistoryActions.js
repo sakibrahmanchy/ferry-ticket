@@ -5,10 +5,11 @@ import {
     TICKET_LIST_FETCH_SUCCESS,
     TICKET_FETCH_SUCCESS
 } from './types';
+import { BASE_API } from '../api';
 
 export const fetchHistory = (tripType, authToken) => {
     
-    const url = 'http://www.bvigrimscloud.com/ferry/public/api/passenger/trips/' + tripType;
+    const url = `${BASE_API}/passenger/trips/${tripType}` ;
 
     return (dispatch) => {
         axios.get(url, { headers: { Authorization: authToken } })
@@ -22,7 +23,7 @@ export const fetchHistory = (tripType, authToken) => {
 
 export const fetchTicketList = (orderId, tripId, authToken) => {
 
-    const url = 'http://www.bvigrimscloud.com/ferry/public/api/order/passengers/' + orderId + '/' + tripId;
+    const url = `${BASE_API}/order/passengers/${orderId}${tripId}`;
 
     return (dispatch) => {
         axios.get(url, { headers: { Authorization: authToken } })
@@ -36,7 +37,7 @@ export const fetchTicketList = (orderId, tripId, authToken) => {
 
 export const fetchTicket = (ticketId, authToken) => {
 
-    const url = 'http://www.bvigrimscloud.com/ferry/public/api/trip/details/' + ticketId;
+    const url = `${BASE_API}/trip/details/${ticketId}`;
 
     return (dispatch) => {
         axios.get(url, { headers: { Authorization: authToken } })

@@ -12,6 +12,7 @@ import {
     REGISTER_USER,
     LOGOUT
 } from './types';
+import { BASE_API } from '../api';
 
 export const userNameChanged = (text) => {
     return {
@@ -48,7 +49,7 @@ export const loginUser = ({ email, password }) => {
         dispatch({ type: LOGIN_USER });
         
         //Add code for user login
-        axios.post('http://www.bvigrimscloud.com/ferry/public/api/login', {
+        axios.post(`${BASE_API}/login`, {
             email,
             password 
         }).then((response) => {
@@ -86,7 +87,7 @@ export const registerUser = ({ name, email, password, password_confirmation }) =
         dispatch({ type: REGISTER_USER });
         
         //Add code for user login
-        axios.post('http://www.bvigrimscloud.com/ferry/public/api/customer/add', {
+        axios.post(`${BASE_API}/customer/add`, {
             name,
             email,
             password,
@@ -105,7 +106,6 @@ export const registerUser = ({ name, email, password, password_confirmation }) =
 
 const registerUserSuccess = (dispatch) => {
     dispatch({ type: REGISTER_USER_SUCCESS });
-    //Actions.ticketSearch();
 };
 
 const registerUserFail = (dispatch, error) => {

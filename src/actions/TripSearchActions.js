@@ -12,10 +12,11 @@ import {
     DEPARTURE_TRIP_SELECTED,
     RETURN_TRIP_SELECTED
 } from './types';
+import { BASE_API } from '../api';
 
 export const portsFetch = (searchText) => {
     //console.log(searchText);
-    const url = 'http://bvigrimscloud.com/ferry/public/api/port/all?port_name=' + searchText;
+    const url = `${BASE_API}/port/all?port_name=${searchText}`;
 
     return (dispatch) => {
         axios.get(url)
@@ -67,7 +68,7 @@ export const selectTripType = (type) => {
 
 
 export const searchForTrips = (searchParams) => {
-    let url = 'http://www.bvigrimscloud.com/ferry/public/api/trip/search';
+    let url = `${BASE_API}/trip/search`;
     url = bindParamsToUrl(url, searchParams);
     return (dispatch) => {
         axios.get(url)
