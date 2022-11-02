@@ -12,7 +12,7 @@
     "loadash": "^1.0.0",
     "moment": "^2.22.0",
     "react": "16.3.0-alpha.1",
-    "react-native": "0.54.2",
+    "react-native": "0.70.4",
     "react-native-app-intro-slider": "^0.2.4",
     "react-native-credit-card-input": "^0.4.1",
     "react-native-datepicker": "^1.7.1",
